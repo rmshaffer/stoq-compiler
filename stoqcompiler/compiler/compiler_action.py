@@ -1,5 +1,6 @@
 from enum import Enum, unique
 
+
 @unique
 class CompilerAction(Enum):
     AppendFirst = 1
@@ -9,8 +10,10 @@ class CompilerAction(Enum):
 
     @staticmethod
     def is_append(value):
-        return value == CompilerAction.AppendFirst or value == CompilerAction.AppendLast
+        return (value == CompilerAction.AppendFirst
+                or value == CompilerAction.AppendLast)
 
     @staticmethod
     def is_remove(value):
-        return value == CompilerAction.RemoveFirst or value == CompilerAction.RemoveLast
+        return (value == CompilerAction.RemoveFirst
+                or value == CompilerAction.RemoveLast)
