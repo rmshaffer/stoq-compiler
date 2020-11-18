@@ -85,14 +85,14 @@ class Hamiltonian:
 
         return UnitarySequence(self.get_dimension(), sequence_entries)
 
-    def compile_qmcmc_sequence(
+    def compile_stoq_sequence(
             self, time, max_t_step, threshold, allow_simultaneous_terms=False):
-        # QMCMC as per Shaffer et al., arXiv:2003.04500 (2020)
+        # STOQ as per Shaffer et al., arXiv:2003.04500 (2020)
         target_unitary = self.get_time_evolution_operator(time)
-        return self._compile_qmcmc_sequence_for_target_unitary(
+        return self._compile_stoq_sequence_for_target_unitary(
             target_unitary, max_t_step, threshold, allow_simultaneous_terms)
 
-    def _compile_qmcmc_sequence_for_target_unitary(
+    def _compile_stoq_sequence_for_target_unitary(
             self, target_unitary, max_t_step, threshold,
             allow_simultaneous_terms):
         unitary_primitives = self._get_unitary_primitives(
@@ -154,9 +154,9 @@ class Hamiltonian:
         # Calculate the product of this sequence and invert it
         target_unitary = random_sequence.product().inverse()
 
-        # Call _compile_qmcmc_sequence_from_unitary to compile a new sequence
+        # Call _compile_stoq_sequence_from_unitary to compile a new sequence
         # implementing the inverse
-        result = self._compile_qmcmc_sequence_for_target_unitary(
+        result = self._compile_stoq_sequence_for_target_unitary(
             target_unitary, max_t_step, threshold, allow_simultaneous_terms)
 
         # Return the CompilerResult with the combined sequence

@@ -113,7 +113,7 @@ class TestHamiltonian:
         assert u.close_to(qdrift_sequence.product(), 0.95), \
             u.distance_from(qdrift_sequence.product())
 
-    def test_qmcmc(self):
+    def test_stoq(self):
         sigmax = np.array([[0, 1], [1, 0]])
         sigmay = np.array([[0, -1j], [1j, 0]])
         x_term = HamiltonianTerm(2 * sigmax)
@@ -126,21 +126,21 @@ class TestHamiltonian:
         max_t_step = time / 10
 
         threshold = 0.9
-        qmcmc_compiler_result = h.compile_qmcmc_sequence(
+        stoq_compiler_result = h.compile_stoq_sequence(
             time, max_t_step, threshold, allow_simultaneous_terms=False)
-        assert isinstance(qmcmc_compiler_result, CompilerResult)
+        assert isinstance(stoq_compiler_result, CompilerResult)
         assert u.close_to(
-            qmcmc_compiler_result.compiled_sequence.product(), threshold), \
-            u.distance_from(qmcmc_compiler_result.compiled_sequence.product())
+            stoq_compiler_result.compiled_sequence.product(), threshold), \
+            u.distance_from(stoq_compiler_result.compiled_sequence.product())
 
         threshold = 0.9
-        qmcmc_compiler_result = h.compile_qmcmc_sequence(
+        stoq_compiler_result = h.compile_stoq_sequence(
             time, max_t_step, threshold, allow_simultaneous_terms=True)
-        assert isinstance(qmcmc_compiler_result, CompilerResult)
+        assert isinstance(stoq_compiler_result, CompilerResult)
         assert u.close_to(
-            qmcmc_compiler_result.compiled_sequence.product(), threshold), \
-            u.distance_from(qmcmc_compiler_result.compiled_sequence.product())
-        assert qmcmc_compiler_result.compiled_sequence.get_qasm()
+            stoq_compiler_result.compiled_sequence.product(), threshold), \
+            u.distance_from(stoq_compiler_result.compiled_sequence.product())
+        assert stoq_compiler_result.compiled_sequence.get_qasm()
 
     def test_rav(self):
         sigmax = np.array([[0, 1], [1, 0]])
