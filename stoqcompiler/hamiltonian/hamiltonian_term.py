@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class HamiltonianTerm:
 
     def __init__(self, matrix):
@@ -13,7 +14,8 @@ class HamiltonianTerm:
         # verify that the matrix is Hermitian
         assert np.allclose(matrix, matrix.T.conj())
 
-        # Split the matrix into a coefficient and a normalized matrix, such that:
+        # Split the matrix into a coefficient and a normalized matrix,
+        # such that:
         #  - largest singular value of normalized matrix is 1
         #  - coefficient is positive and real
         _, s, _ = np.linalg.svd(matrix)
@@ -36,4 +38,3 @@ class HamiltonianTerm:
 
     def get_normalized_matrix(self):
         return self.normalized_matrix
-        

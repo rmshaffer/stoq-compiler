@@ -1,6 +1,6 @@
-import copy
 import numpy as np
 import scipy.stats
+
 
 class Unitary:
     @staticmethod
@@ -13,7 +13,9 @@ class Unitary:
         random_matrix = scipy.stats.unitary_group.rvs(dimension)
         return Unitary(dimension, random_matrix)
 
-    def __init__(self, dimension, matrix=None, operation_name=None, parameter_dict=None, is_inverse=False, apply_to=[]):
+    def __init__(
+            self, dimension, matrix=None, operation_name=None,
+            parameter_dict=None, is_inverse=False, apply_to=[]):
         assert dimension > 0
 
         if matrix is None:
@@ -43,7 +45,8 @@ class Unitary:
 
         # verify that the matrix is unitary
         assert matrix.shape == (dimension, dimension), matrix.shape
-        assert np.allclose(matrix @ matrix.T.conj(), np.identity(dimension)), matrix @ matrix.T.conj()
+        assert np.allclose(matrix @ matrix.T.conj(), np.identity(dimension)), \
+            matrix @ matrix.T.conj()
 
         # balance the global phase
         global_phase_factor = (1/np.linalg.det(matrix)) ** (1/dimension)
@@ -60,7 +63,8 @@ class Unitary:
 
         parameters = ""
         if len(self.parameter_dict) > 0:
-            parameters = " ".join(as_decimal(v[0]) for k,v in self.parameter_dict.items())
+            parameters = " ".join(
+                as_decimal(v[0]) for k, v in self.parameter_dict.items())
 
         qubits = ""
         apply_to_qubits = self.apply_to
@@ -81,7 +85,9 @@ class Unitary:
 
         parameters = ""
         if len(self.parameter_dict) > 0:
-            parameters = "(" + ",".join((as_pi_fraction(v[0]) if v[1] else as_decimal(v[0])) for k,v in self.parameter_dict.items()) + ")"
+            parameters = "(" + ",".join(
+                (as_pi_fraction(v[0]) if v[1] else as_decimal(v[0]))
+                for k, v in self.parameter_dict.items()) + ")"
 
         qubits = ""
         apply_to_qubits = self.apply_to
@@ -104,7 +110,9 @@ class Unitary:
         if len(self.apply_to) > 0:
             display_name += str(self.apply_to)
         if len(self.parameter_dict) > 0:
-            display_name += "(" + ", ".join(k + "=" + (as_pi_fraction(v[0]) if v[1] else as_decimal(v[0])) for k,v in self.parameter_dict.items()) + ")"
+            display_name += "(" + ", ".join(
+                k + "=" + (as_pi_fraction(v[0]) if v[1] else as_decimal(v[0]))
+                for k, v in self.parameter_dict.items()) + ")"
 
         if self.is_inverse:
             display_name += '†'
@@ -124,14 +132,23 @@ class Unitary:
 
     def inverse(self):
         is_inverse = not self.is_inverse
-        return Unitary(self.get_dimension(), self.get_matrix().T.conj(), self.get_operation_name(), self.parameter_dict, is_inverse=is_inverse, apply_to=self.apply_to)
+        return Unitary(
+            self.get_dimension(), self.get_matrix().T.conj(),
+            self.get_operation_name(), self.parameter_dict,
+            is_inverse=is_inverse, apply_to=self.apply_to)
 
     def tensor(self, u):
         assert isinstance(u, Unitary)
 
         new_dimension = u.get_dimension() * self.get_dimension()
-        new_operation_name = self.get_operation_name() + "--" + u.get_operation_name()
-        return Unitary(new_dimension, np.kron(self.get_matrix(), u.get_matrix()), new_operation_name, self.parameter_dict, apply_to=self.apply_to)
+        new_operation_name = (
+            self.get_operation_name()
+            + "--"
+            + u.get_operation_name())
+        return Unitary(
+            new_dimension,
+            np.kron(self.get_matrix(), u.get_matrix()),
+            new_operation_name, self.parameter_dict, apply_to=self.apply_to)
 
     def close_to(self, u, threshold=None):
         distance = self.distance_from(u)
@@ -155,8 +172,10 @@ class Unitary:
 
     def left_multiply(self, factor):
         assert self.get_dimension() == factor.get_dimension()
-        return Unitary(self.get_dimension(), factor.get_matrix() @ self.get_matrix())
+        return Unitary(
+            self.get_dimension(), factor.get_matrix() @ self.get_matrix())
 
     def right_multiply(self, factor):
         assert self.get_dimension() == factor.get_dimension()
-        return Unitary(self.get_dimension(), self.get_matrix() @ factor.get_matrix())
+        return Unitary(
+            self.get_dimension(), self.get_matrix() @ factor.get_matrix())

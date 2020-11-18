@@ -2,17 +2,11 @@ import pytest
 import numpy as np
 
 from stoqcompiler.hamiltonian import Hamiltonian, HamiltonianTerm
-from stoqcompiler.compiler import Compiler, CompilerResult
-from stoqcompiler.unitary import (
-    Unitary,
-    UnitaryPrimitive,
-    UnitarySequence,
-    UnitarySequenceEntry,
-    UnitaryDefinitions,
-    ParameterizedUnitary,
-    ParameterizedUnitaryParameter)
+from stoqcompiler.compiler import CompilerResult
+from stoqcompiler.unitary import Unitary, UnitarySequence
 
 qubit_dimension = 2
+
 
 class TestHamiltonian:
 
@@ -22,8 +16,14 @@ class TestHamiltonian:
             Hamiltonian(terms)
 
     def test_terms_mismatched_dimension(self):
-        term1 = HamiltonianTerm(np.array([[3, 2+1j], [2-1j, 3]]))
-        term2 = HamiltonianTerm(np.array([[3, 2+1j, 0, 0], [2-1j, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 3]]))
+        term1 = HamiltonianTerm(np.array([
+            [3, 2+1j],
+            [2-1j, 3]]))
+        term2 = HamiltonianTerm(np.array([
+            [3, 2+1j, 0, 0],
+            [2-1j, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 3]]))
         with pytest.raises(Exception):
             Hamiltonian([term1, term2])
 
@@ -62,7 +62,8 @@ class TestHamiltonian:
         assert isinstance(ideal_sequence, UnitarySequence)
         assert ideal_sequence.get_length() == num_steps
 
-        assert u.close_to(ideal_sequence.product()), u.distance_from(ideal_sequence.product())
+        assert u.close_to(ideal_sequence.product()), \
+            u.distance_from(ideal_sequence.product())
 
     def test_trotterization(self):
         sigmax = np.array([[0, 1], [1, 0]])
@@ -80,13 +81,18 @@ class TestHamiltonian:
         assert isinstance(trotter_sequence, UnitarySequence)
         assert trotter_sequence.get_length() == num_trotter_steps * len(terms)
 
-        randomized_trotter_sequence = h.get_trotter_sequence(time, num_trotter_steps, randomize=True)
+        randomized_trotter_sequence = h.get_trotter_sequence(
+            time, num_trotter_steps, randomize=True)
         assert isinstance(randomized_trotter_sequence, UnitarySequence)
-        assert randomized_trotter_sequence.get_length() == num_trotter_steps * len(terms)
+        assert (randomized_trotter_sequence.get_length()
+                == num_trotter_steps * len(terms))
 
-        assert u.close_to(trotter_sequence.product(), 0.95), u.distance_from(trotter_sequence.product())
-        assert u.close_to(randomized_trotter_sequence.product(), 0.95), u.distance_from(randomized_trotter_sequence.product())
-        assert not trotter_sequence.product().close_to(randomized_trotter_sequence.product())
+        assert u.close_to(trotter_sequence.product(), 0.95), \
+            u.distance_from(trotter_sequence.product())
+        assert u.close_to(randomized_trotter_sequence.product(), 0.95), \
+            u.distance_from(randomized_trotter_sequence.product())
+        assert not trotter_sequence.product().close_to(
+            randomized_trotter_sequence.product())
 
     def test_qdrift(self):
         sigmax = np.array([[0, 1], [1, 0]])
@@ -104,7 +110,8 @@ class TestHamiltonian:
         assert isinstance(qdrift_sequence, UnitarySequence)
         assert qdrift_sequence.get_length() == num_repetitions
 
-        assert u.close_to(qdrift_sequence.product(), 0.95), u.distance_from(qdrift_sequence.product())
+        assert u.close_to(qdrift_sequence.product(), 0.95), \
+            u.distance_from(qdrift_sequence.product())
 
     def test_qmcmc(self):
         sigmax = np.array([[0, 1], [1, 0]])
@@ -119,14 +126,20 @@ class TestHamiltonian:
         max_t_step = time / 10
 
         threshold = 0.9
-        qmcmc_compiler_result = h.compile_qmcmc_sequence(time, max_t_step, threshold, allow_simultaneous_terms=False)
+        qmcmc_compiler_result = h.compile_qmcmc_sequence(
+            time, max_t_step, threshold, allow_simultaneous_terms=False)
         assert isinstance(qmcmc_compiler_result, CompilerResult)
-        assert u.close_to(qmcmc_compiler_result.compiled_sequence.product(), threshold), u.distance_from(qmcmc_compiler_result.compiled_sequence.product())
+        assert u.close_to(
+            qmcmc_compiler_result.compiled_sequence.product(), threshold), \
+            u.distance_from(qmcmc_compiler_result.compiled_sequence.product())
 
         threshold = 0.9
-        qmcmc_compiler_result = h.compile_qmcmc_sequence(time, max_t_step, threshold, allow_simultaneous_terms=True)
+        qmcmc_compiler_result = h.compile_qmcmc_sequence(
+            time, max_t_step, threshold, allow_simultaneous_terms=True)
         assert isinstance(qmcmc_compiler_result, CompilerResult)
-        assert u.close_to(qmcmc_compiler_result.compiled_sequence.product(), threshold), u.distance_from(qmcmc_compiler_result.compiled_sequence.product())
+        assert u.close_to(
+            qmcmc_compiler_result.compiled_sequence.product(), threshold), \
+            u.distance_from(qmcmc_compiler_result.compiled_sequence.product())
         assert qmcmc_compiler_result.compiled_sequence.get_qasm()
 
     def test_rav(self):
@@ -141,11 +154,14 @@ class TestHamiltonian:
         max_t_step = time / 10
         threshold = 0.9
 
-        rav_result = h.compile_rav_sequence(time, max_t_step, threshold, allow_simultaneous_terms=True)
+        rav_result = h.compile_rav_sequence(
+            time, max_t_step, threshold, allow_simultaneous_terms=True)
         assert isinstance(rav_result, CompilerResult)
 
         product = rav_result.compiled_sequence.product()
-        assert product.close_to(Unitary.identity(h.get_dimension()), threshold), product.distance_from(Unitary.identity(h.get_dimension()))
+        assert product.close_to(
+            Unitary.identity(h.get_dimension()), threshold), \
+            product.distance_from(Unitary.identity(h.get_dimension()))
         assert rav_result.compiled_sequence.get_qasm()
 
     def test_two_qubits(self):
@@ -154,7 +170,10 @@ class TestHamiltonian:
         xx = np.kron(sigmax, sigmax)
         y1 = np.kron(sigmay, np.identity(qubit_dimension))
         y2 = np.kron(np.identity(qubit_dimension), sigmay)
-        terms = [HamiltonianTerm(2 * xx), HamiltonianTerm(1.5 * y1), HamiltonianTerm(1.1 * y2)]
+        terms = [
+            HamiltonianTerm(2 * xx),
+            HamiltonianTerm(1.5 * y1),
+            HamiltonianTerm(1.1 * y2)]
         h = Hamiltonian(terms)
 
         u = h.get_time_evolution_operator(0)
@@ -166,7 +185,8 @@ class TestHamiltonian:
         u = h.get_time_evolution_operator(time)
 
         num_trotter_steps = 20
-        randomized_trotter_sequence = h.get_trotter_sequence(time, num_trotter_steps, randomize=True)
+        randomized_trotter_sequence = h.get_trotter_sequence(
+            time, num_trotter_steps, randomize=True)
         assert isinstance(randomized_trotter_sequence, UnitarySequence)
 
         num_repetitions = 1000
@@ -175,13 +195,17 @@ class TestHamiltonian:
         assert qdrift_sequence.get_length() == num_repetitions
 
         # should be close
-        assert u.close_to(randomized_trotter_sequence.product(), 0.95), u.distance_from(randomized_trotter_sequence.product())
-        assert u.close_to(qdrift_sequence.product(), 0.95), u.distance_from(qdrift_sequence.product())
+        assert u.close_to(randomized_trotter_sequence.product(), 0.95), \
+            u.distance_from(randomized_trotter_sequence.product())
+        assert u.close_to(qdrift_sequence.product(), 0.95), \
+            u.distance_from(qdrift_sequence.product())
 
         # but should not be exactly the same
         assert not u.close_to(randomized_trotter_sequence.product())
         assert not u.close_to(qdrift_sequence.product())
-        assert not randomized_trotter_sequence.product().close_to(qdrift_sequence.product())
+        assert not randomized_trotter_sequence.product().close_to(
+            qdrift_sequence.product())
+
 
 class TestHamiltonianTerm:
 

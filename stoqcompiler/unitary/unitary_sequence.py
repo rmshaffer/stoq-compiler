@@ -4,15 +4,20 @@ import numpy as np
 from .unitary import Unitary
 from .unitary_sequence_entry import UnitarySequenceEntry
 
+
 class UnitarySequence:
 
     @classmethod
     def combine(this_class, *sequences):
         assert len(sequences) > 0
-        assert np.all([isinstance(sequence, this_class) for sequence in sequences])
+        assert np.all([
+            isinstance(sequence, this_class)
+            for sequence in sequences])
 
         dimension = sequences[0].get_dimension()
-        assert np.all([sequence.get_dimension() == dimension for sequence in sequences])
+        assert np.all([
+            sequence.get_dimension() == dimension
+            for sequence in sequences])
 
         new_sequence_entries = []
         new_product = Unitary.identity(dimension)
@@ -27,7 +32,8 @@ class UnitarySequence:
     def __init__(self, dimension, sequence_entries=[]):
         self.dimension = dimension
 
-        assert isinstance(sequence_entries, list) or isinstance(sequence_entries, np.ndarray)
+        assert (isinstance(sequence_entries, list)
+                or isinstance(sequence_entries, np.ndarray))
         [self.assert_is_entry_valid(entry) for entry in sequence_entries]
 
         self.sequence_entries = copy.deepcopy(sequence_entries)
@@ -37,7 +43,8 @@ class UnitarySequence:
         self.previous_sequence_product = None
 
     def assert_is_entry_valid(self, sequence_entry):
-        assert isinstance(sequence_entry, UnitarySequenceEntry), type(sequence_entry)
+        assert isinstance(sequence_entry, UnitarySequenceEntry), \
+            type(sequence_entry)
         assert sequence_entry.get_dimension() <= self.dimension
         assert 2**(np.max(sequence_entry.get_apply_to())+1) <= self.dimension
 
@@ -53,7 +60,9 @@ class UnitarySequence:
     def save_undo_state(self):
         self.previous_entries = copy.deepcopy(self.sequence_entries)
         if self.sequence_product:
-            self.previous_sequence_product = Unitary(self.sequence_product.get_dimension(), self.sequence_product.get_matrix())
+            self.previous_sequence_product = Unitary(
+                self.sequence_product.get_dimension(),
+                self.sequence_product.get_matrix())
 
     def append_first(self, sequence_entry, save_undo=True):
         self.assert_is_entry_valid(sequence_entry)
@@ -63,7 +72,8 @@ class UnitarySequence:
         self.sequence_entries.insert(0, sequence_entry)
         if self.sequence_product:
             u_appended = sequence_entry.get_full_unitary(self.dimension)
-            self.sequence_product = self.sequence_product.right_multiply(u_appended)
+            self.sequence_product = self.sequence_product.right_multiply(
+                u_appended)
 
     def append_last(self, sequence_entry, save_undo=True):
         self.assert_is_entry_valid(sequence_entry)
@@ -73,7 +83,8 @@ class UnitarySequence:
         self.sequence_entries.append(sequence_entry)
         if self.sequence_product:
             u_appended = sequence_entry.get_full_unitary(self.dimension)
-            self.sequence_product = self.sequence_product.left_multiply(u_appended)
+            self.sequence_product = self.sequence_product.left_multiply(
+                u_appended)
 
     def remove_first(self, save_undo=True):
         if self.get_length() > 0:
@@ -82,7 +93,8 @@ class UnitarySequence:
             entry_removed = self.sequence_entries.pop(0)
             if self.sequence_product:
                 u_removed = entry_removed.get_full_unitary(self.dimension)
-                self.sequence_product = self.sequence_product.right_multiply(u_removed.inverse())
+                self.sequence_product = self.sequence_product.right_multiply(
+                    u_removed.inverse())
 
     def remove_last(self, save_undo=True):
         if self.get_length() > 0:
@@ -91,10 +103,11 @@ class UnitarySequence:
             entry_removed = self.sequence_entries.pop(-1)
             if self.sequence_product:
                 u_removed = entry_removed.get_full_unitary(self.dimension)
-                self.sequence_product = self.sequence_product.left_multiply(u_removed.inverse())
+                self.sequence_product = self.sequence_product.left_multiply(
+                    u_removed.inverse())
 
     def undo(self):
-        assert not self.previous_entries is None, "can't undo"
+        assert self.previous_entries is not None, "can't undo"
 
         self.sequence_entries = self.previous_entries
         self.sequence_product = self.previous_sequence_product
@@ -114,7 +127,8 @@ class UnitarySequence:
         return self.sequence_product
 
     def inverse(self):
-        inverse_sequence = UnitarySequence(self.get_dimension(), self.get_sequence_entries())
+        inverse_sequence = UnitarySequence(
+            self.get_dimension(), self.get_sequence_entries())
         inverse_sequence.sequence_entries.reverse()
         for entry in inverse_sequence.sequence_entries:
             entry.unitary = entry.unitary.inverse()
@@ -124,12 +138,18 @@ class UnitarySequence:
 
     def get_jaqal(self):
         return "// JAQAL generated from UnitarySequence.get_jaqal()\n" + \
-            "\n".join([entry.get_full_unitary(self.get_dimension()).get_jaqal() for entry in self.sequence_entries])
+            "\n".join([
+                entry.get_full_unitary(self.get_dimension()).get_jaqal()
+                for entry in self.sequence_entries])
 
     def get_qasm(self):
         return "# QASM generated from UnitarySequence.get_qasm()\n" + \
-            "\n".join([entry.get_full_unitary(self.get_dimension()).get_qasm() for entry in self.sequence_entries])
+            "\n".join([
+                entry.get_full_unitary(self.get_dimension()).get_qasm()
+                for entry in self.sequence_entries])
 
     def get_display_output(self):
-        return "# Display output generated from UnitarySequence.get_display_output()\n" + \
-            "\n".join([entry.get_full_unitary(self.get_dimension()).get_display_name() for entry in self.sequence_entries])
+        return "# Generated from UnitarySequence.get_display_output()\n" + \
+            "\n".join([
+                entry.get_full_unitary(self.get_dimension()).get_display_name()
+                for entry in self.sequence_entries])

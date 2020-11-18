@@ -3,6 +3,7 @@ import scipy.sparse
 
 from .unitary import Unitary
 
+
 class UnitarySequenceEntry:
 
     def __init__(self, unitary, apply_to):
@@ -42,7 +43,8 @@ class UnitarySequenceEntry:
             counter = np.arange(rprod)
             for k in range(len(sel)):
                 ilist[:, sel[k]] = np.remainder(
-                    np.fix(counter / np.prod(dims[sel[k + 1:]])), dims[sel[k]]) + 1
+                    np.fix(counter / np.prod(dims[sel[k + 1:]])),
+                    dims[sel[k]]) + 1
             return ilist
 
         def _perm_inds(dims, order):
@@ -52,7 +54,8 @@ class UnitarySequenceEntry:
             """
             dims = np.asarray(dims)
             order = np.asarray(order)
-            assert np.all(np.sort(order) == np.arange(len(dims))), 'Requested permutation does not match tensor structure.'
+            assert np.all(np.sort(order) == np.arange(len(dims))), \
+                'Requested permutation does not match tensor structure.'
             sel = _select(order, dims)
             irev = np.fliplr(sel) - 1
             fact = np.append(np.array([1]), np.cumprod(np.flipud(dims)[:-1]))
@@ -74,7 +77,9 @@ class UnitarySequenceEntry:
         permute_indices = _perm_inds([2] * num_system_qubits, permute_order)
         data = np.ones(system_dimension, dtype=int)
         rows = np.arange(system_dimension, dtype=int)
-        permute_matrix = scipy.sparse.coo_matrix((data, (rows, np.array(permute_indices.T)[0])), shape=(system_dimension, system_dimension), dtype=int).tocsr()
+        permute_matrix = scipy.sparse.coo_matrix(
+            (data, (rows, np.array(permute_indices.T)[0])),
+            shape=(system_dimension, system_dimension), dtype=int).tocsr()
 
         return permute_matrix
 
@@ -82,12 +87,15 @@ class UnitarySequenceEntry:
         assert system_dimension >= self.get_dimension()
 
         if system_dimension not in self.full_unitary_by_dimension:
-            expansion = Unitary.identity(int(system_dimension / self.get_dimension()))
+            expansion = Unitary.identity(
+                int(system_dimension / self.get_dimension()))
             expanded_unitary = self.unitary.tensor(expansion)
             assert expanded_unitary.get_dimension() == system_dimension
 
             permute_matrix = self.get_permute_matrix(system_dimension)
-            full_matrix = permute_matrix * expanded_unitary.get_matrix() * permute_matrix.T
+            full_matrix = (permute_matrix
+                           * expanded_unitary.get_matrix()
+                           * permute_matrix.T)
 
             operation_name = self.unitary.get_operation_name()
             self.full_unitary_by_dimension[system_dimension] = Unitary(

@@ -4,6 +4,7 @@ import scipy.linalg
 from .unitary import Unitary
 from .unitary_sequence_entry import UnitarySequenceEntry
 
+
 class UnitaryDefinitions:
     @staticmethod
     def rx(theta):
@@ -12,7 +13,8 @@ class UnitaryDefinitions:
         operation_name = "Rx"
         return Unitary(dimension, np.array(
             [[np.cos(theta/2), -1j * np.sin(theta/2)],
-             [-1j * np.sin(theta/2), np.cos(theta/2)]]), operation_name, parameter_dict)
+             [-1j * np.sin(theta/2), np.cos(theta/2)]]
+            ), operation_name, parameter_dict)
 
     @staticmethod
     def ry(theta):
@@ -46,7 +48,8 @@ class UnitaryDefinitions:
 
     @staticmethod
     def h():
-        h = UnitaryDefinitions.rz(np.pi).left_multiply(UnitaryDefinitions.ry(np.pi/2))
+        h = UnitaryDefinitions.rz(np.pi).left_multiply(
+                UnitaryDefinitions.ry(np.pi/2))
         return Unitary(h.get_dimension(), h.get_matrix(), "H")
 
     @staticmethod
@@ -124,11 +127,15 @@ class UnitaryDefinitions:
         dimension = 2**num_qubits
         parameter_dict = {"θ": (theta, True)}
         operation_name = f"GMS{num_qubits}"
-        local_unitaries = [UnitarySequenceEntry(UnitaryDefinitions.xx(theta), [i,j]).get_full_unitary(dimension) for i in range(num_qubits) for j in range(i+1, num_qubits)]
+        local_unitaries = [UnitarySequenceEntry(
+            UnitaryDefinitions.xx(theta), [i, j]).get_full_unitary(dimension)
+            for i in range(num_qubits) for j in range(i+1, num_qubits)]
         global_unitary = Unitary.identity(dimension)
         for u in local_unitaries:
             global_unitary = global_unitary.left_multiply(u)
-        return Unitary(dimension, global_unitary.get_matrix(), operation_name, parameter_dict)
+        return Unitary(
+            dimension, global_unitary.get_matrix(),
+            operation_name, parameter_dict)
 
     @staticmethod
     def time_evolution(h_matrix, t, h_suffix=""):
@@ -138,4 +145,6 @@ class UnitaryDefinitions:
         dimension = h_matrix.shape[0]
         parameter_dict = {"t": (t, False)}
         operation_name = "H" + str(h_suffix)
-        return Unitary(dimension, scipy.linalg.expm(1j*h_matrix*t), operation_name, parameter_dict)
+        return Unitary(
+            dimension, scipy.linalg.expm(1j*h_matrix*t),
+            operation_name, parameter_dict)

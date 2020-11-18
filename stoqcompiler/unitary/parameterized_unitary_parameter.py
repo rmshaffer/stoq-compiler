@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class ParameterizedUnitaryParameter:
 
     def __init__(self, parameter_name, min_value, max_value, is_angle):
@@ -18,7 +19,9 @@ class ParameterizedUnitaryParameter:
         return self.is_angle
 
     def is_valid(self, parameter_value):
-        return parameter_value >= self.min_value and parameter_value <= self.max_value
+        return (parameter_value >= self.min_value
+                and parameter_value <= self.max_value)
 
     def random_value(self):
-        return np.random.random_sample() * (self.max_value - self.min_value) + self.min_value
+        return (np.random.random_sample()
+                * (self.max_value - self.min_value)) + self.min_value
