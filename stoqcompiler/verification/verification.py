@@ -9,7 +9,7 @@ class Verification:
     @staticmethod
     def generate_rav_sequence(
             dimension, unitary_primitives, sequence_length,
-            threshold, mcmc_append_probability=0.5,
+            threshold, stoq_append_probability=0.5,
             unitary_primitive_probabilities=None):
         # Randomized analog verification (RAV) as per Shaffer et al.,
         # arXiv:2003.04500 (2020)
@@ -36,7 +36,7 @@ class Verification:
 
         # Use Compiler to compile a new sequence implementing the inverse
         compiler = Compiler(
-            dimension, mcmc_append_probability,
+            dimension, stoq_append_probability,
             unitary_primitive_probabilities)
         compiler.set_unitary_primitives(unitary_primitives)
         result = compiler.compile(
@@ -50,7 +50,7 @@ class Verification:
     @staticmethod
     def generate_layered_rav_sequence(
             dimension, unitary_primitive_counts, layer_count,
-            threshold, mcmc_append_probability=0.5, max_step_count=10000):
+            threshold, stoq_append_probability=0.5, max_step_count=10000):
         # Layered randomized analog verification (RAV) sequences
         # unitary_primitive_counts is a dictionary mapping each unitary
         # primitive to its count per layer
@@ -81,7 +81,7 @@ class Verification:
         target_unitary = random_sequence.product().inverse()
 
         # Use Compiler to compile a new sequence implementing the inverse
-        compiler = Compiler(dimension, mcmc_append_probability)
+        compiler = Compiler(dimension, stoq_append_probability)
         result = compiler.compile_layered(
             target_unitary, unitary_primitive_counts,
             threshold, max_step_count)
