@@ -1,3 +1,6 @@
+'''
+Defines the UnitarySequence class.
+'''
 import copy
 import numpy as np
 from typing import List
@@ -7,6 +10,9 @@ from .unitary_sequence_entry import UnitarySequenceEntry
 
 
 class UnitarySequence:
+    '''
+    Represents a sequence of unitary objects.
+    '''
     def __init__(
         self,
         dimension: int,

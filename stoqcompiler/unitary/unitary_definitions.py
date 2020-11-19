@@ -1,3 +1,6 @@
+'''
+Defines the UnitaryDefinitions class.
+'''
 import numpy as np
 import scipy.linalg
 
@@ -6,8 +9,19 @@ from .unitary_sequence_entry import UnitarySequenceEntry
 
 
 class UnitaryDefinitions:
+    '''
+    Provides methods to create several commonly-used unitaries.
+    '''
     @staticmethod
     def rx(theta: float) -> Unitary:
+        '''
+        Rotation around the x-axis.
+
+        :param theta: Angle of rotation.
+        :type theta: float
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         dimension = 2
         parameter_dict = {"θ": (theta, True)}
         operation_name = "Rx"
@@ -18,6 +32,14 @@ class UnitaryDefinitions:
 
     @staticmethod
     def ry(theta: float) -> Unitary:
+        '''
+        Rotation around the y-axis.
+
+        :param theta: Angle of rotation.
+        :type theta: float
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         dimension = 2
         parameter_dict = {"θ": (theta, True)}
         operation_name = "Ry"
@@ -31,6 +53,16 @@ class UnitaryDefinitions:
         theta: float,
         phi: float
     ) -> Unitary:
+        '''
+        Rotation around an axis in the x-y plane.
+
+        :param theta: Angle of rotation.
+        :type theta: float
+        :param phi: Angle defining axis of rotation.
+        :type phi: float
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         dimension = 2
         parameter_dict = {"θ": (theta, True), "Φ": (phi, True)}
         operation_name = "R"
@@ -43,6 +75,14 @@ class UnitaryDefinitions:
 
     @staticmethod
     def rz(theta: float) -> Unitary:
+        '''
+        Rotation around the z-axis.
+
+        :param theta: Angle of rotation.
+        :type theta: float
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         dimension = 2
         parameter_dict = {"θ": (theta, True)}
         operation_name = "Rz"
@@ -53,32 +93,68 @@ class UnitaryDefinitions:
 
     @staticmethod
     def h() -> Unitary:
+        '''
+        The single-qubit Hadamard gate.
+
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         h = UnitaryDefinitions.rz(np.pi).left_multiply(
             UnitaryDefinitions.ry(np.pi / 2))
         return Unitary(h.get_dimension(), h.get_matrix(), "H")
 
     @staticmethod
     def t() -> Unitary:
+        '''
+        The single-qubit T gate.
+
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         t = UnitaryDefinitions.rz(np.pi / 4)
         return Unitary(t.get_dimension(), t.get_matrix(), "T")
 
     @staticmethod
     def sigmax() -> Unitary:
+        '''
+        Rotation around the x-axis by pi.
+
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         rx = UnitaryDefinitions.rx(np.pi)
         return Unitary(rx.get_dimension(), rx.get_matrix(), "X")
 
     @staticmethod
     def sigmay() -> Unitary:
+        '''
+        Rotation around the y-axis by pi.
+
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         ry = UnitaryDefinitions.ry(np.pi)
         return Unitary(ry.get_dimension(), ry.get_matrix(), "Y")
 
     @staticmethod
     def sigmaz() -> Unitary:
+        '''
+        Rotation around the z-axis by pi.
+
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         rz = UnitaryDefinitions.rz(np.pi)
         return Unitary(rz.get_dimension(), rz.get_matrix(), "Z")
 
     @staticmethod
     def cnot() -> Unitary:
+        '''
+        The two-qubit CNOT gate.
+
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         dimension = 4
         operation_name = "CNOT"
         return Unitary(dimension, np.array(
@@ -89,6 +165,12 @@ class UnitaryDefinitions:
 
     @staticmethod
     def ccnot() -> Unitary:
+        '''
+        The three-qubit CCNOT gate (or Toffoli gate).
+
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         dimension = 8
         operation_name = "CCNOT"
         return Unitary(dimension, np.array(
@@ -103,6 +185,13 @@ class UnitaryDefinitions:
 
     @staticmethod
     def qecc_phase_flip() -> Unitary:
+        '''
+        The three-qubit operation implementing syndrome
+        detection for a phase-flip QECC scheme.
+
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         dimension = 8
         operation_name = "QECC"
         return Unitary(dimension, (1 / np.sqrt(8)) * np.array(
@@ -119,6 +208,15 @@ class UnitaryDefinitions:
     def xx(
         theta: float = np.pi / 4
     ) -> Unitary:
+        '''
+        The two-qubit XX gate, where a rotation angle of pi/4
+        produces the traditional XX or Molmer-Sorensen gate.
+
+        :param theta: Angle of rotation, defaults to np.pi/4.
+        :type theta: float, optional
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         dimension = 4
         parameter_dict = {"θ": (theta, True)}
         operation_name = "XX"
@@ -134,6 +232,18 @@ class UnitaryDefinitions:
         num_qubits: int,
         theta: float = np.pi / 4
     ) -> Unitary:
+        '''
+        The n-qubit global Molmer-Sorensen gate, where a
+        rotation angle of pi/4 produces the maximally-entangling
+        version of the gate.
+
+        :param num_qubits: Number of qubits.
+        :type num_qubits: int
+        :param theta: Angle of rotation, defaults to np.pi/4.
+        :type theta: float, optional
+        :return: The unitary object.
+        :rtype: Unitary
+        '''
         dimension = 2**num_qubits
         parameter_dict = {"θ": (theta, True)}
         operation_name = f"GMS{num_qubits}"
@@ -153,6 +263,21 @@ class UnitaryDefinitions:
         t: float,
         h_suffix: str = ""
     ) -> Unitary:
+        '''
+        Creates a time-evolution unitary for the specified
+        Hamiltonian matrix.
+
+        :param h_matrix: The Hamiltonian matrix to use for time evolution.
+        :type h_matrix: np.ndarray
+        :param t: The time for which to perform the time evolution.
+        This may be negative if time-reversal is allowed.
+        :type t: float
+        :param h_suffix: A suffix used for display purposes to identify this
+        Hamiltonian, defaults to "".
+        :type h_suffix: str, optional
+        :return: [description]
+        :rtype: Unitary
+        '''
         assert isinstance(h_matrix, np.ndarray)
         assert np.allclose(h_matrix, h_matrix.T.conj())
 

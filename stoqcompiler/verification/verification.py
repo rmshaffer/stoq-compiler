@@ -1,3 +1,6 @@
+'''
+Defines the Verification class.
+'''
 import numpy as np
 from typing import Dict, List, Optional
 

@@ -1,3 +1,6 @@
+'''
+Defines the ParameterizedUnitaryDefinitions class.
+'''
 import numpy as np
 
 from .unitary_definitions import UnitaryDefinitions
@@ -6,8 +9,20 @@ from .parameterized_unitary import ParameterizedUnitary
 
 
 class ParameterizedUnitaryDefinitions:
+    '''
+    Provides methods to create several commonly-used
+    parameterized unitaries.
+    '''
     @staticmethod
     def rotation_xy() -> ParameterizedUnitary:
+        '''
+        Creates a parameterized rotation around an axis in the x-y plane with
+        parameters theta (rotation angle) and phi (polar angle defining
+        the axis of rotation).
+
+        :return: The parameterized unitary object.
+        :rtype: ParameterizedUnitary
+        '''
         qubit_dimension = 2
 
         def rotation_matrix(
@@ -28,6 +43,13 @@ class ParameterizedUnitaryDefinitions:
 
     @staticmethod
     def rotation_xyz() -> ParameterizedUnitary:
+        '''
+        Creates a parameterized rotation around an arbitrary axis, where the
+        rotation is defined by parameters alpha, beta, and gamma.
+
+        :return: The parameterized unitary object.
+        :rtype: ParameterizedUnitary
+        '''
         qubit_dimension = 2
 
         def rotation_matrix(
@@ -55,6 +77,14 @@ class ParameterizedUnitaryDefinitions:
 
     @staticmethod
     def xx() -> ParameterizedUnitary:
+        '''
+        Creates a parameterized two-qubit XX gate, where the rotation
+        angle is defined by the parameter theta. A theta value of pi/4
+        produces the traditional XX or Molmer-Sorensen gate.
+
+        :return: The parameterized unitary object.
+        :rtype: ParameterizedUnitary
+        '''
         qubit_dimension = 2
 
         def xx_matrix(
@@ -74,6 +104,17 @@ class ParameterizedUnitaryDefinitions:
     def gms(
         num_qubits: int
     ) -> ParameterizedUnitary:
+        '''
+        Creates a parameterized n-qubit global Molmer-Sorensen gate,
+        where the rotation angle is defined by the parameter theta.
+        A theta value of pi/4 produces the traditional n-qubit global
+        Molmer-Sorensen maximally-entangling gate.
+
+        :param num_qubits: The number of qubits to use.
+        :type num_qubits: int
+        :return: The parameterized unitary object.
+        :rtype: ParameterizedUnitary
+        '''
         qubit_dimension = 2
 
         def gms_matrix(
@@ -97,6 +138,25 @@ class ParameterizedUnitaryDefinitions:
         t_max: float,
         h_suffix: str = ""
     ) -> ParameterizedUnitary:
+        '''
+        Creates a parameterized time-evolution unitary
+        for the specified Hamiltonian matrix, where the
+        parameter is the time for which to evolve the system.
+
+        :param h_matrix: The Hamiltonian matrix to use for time evolution.
+        :type h_matrix: np.ndarray
+        :param t_min: The minimum allowed value for the time evolution
+        parameter. This may be negative if time-reversal is allowed.
+        :type t_min: float
+        :param t_max: The maximum allowed value for the time evolution
+        parameter.
+        :type t_max: float
+        :param h_suffix: A suffix used for display purposes to identify this
+        Hamiltonian, defaults to "".
+        :type h_suffix: str, optional
+        :return: The parameterized unitary object.
+        :rtype: ParameterizedUnitary
+        '''
         assert isinstance(h_matrix, np.ndarray)
         assert np.allclose(h_matrix, h_matrix.T.conj())
         assert t_min <= t_max

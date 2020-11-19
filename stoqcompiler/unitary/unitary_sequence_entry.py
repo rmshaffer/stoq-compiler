@@ -1,3 +1,6 @@
+'''
+Defines the UnitarySequenceEntry class.
+'''
 import numpy as np
 import scipy.sparse
 from typing import List
@@ -6,11 +9,23 @@ from .unitary import Unitary
 
 
 class UnitarySequenceEntry:
+    '''
+    Represents an entry in a unitary sequence applied to
+    a specific subset of qubits in a system.
+    '''
     def __init__(
         self,
         unitary: Unitary,
         apply_to: List[int]
     ):
+        '''
+        Creates a UnitarySequenceEntry object.
+
+        :param unitary: The unitary operation to be applied.
+        :type unitary: Unitary
+        :param apply_to: The qubits to which the operation is applied.
+        :type apply_to: List[int]
+        '''
         apply_to = list(apply_to)
         assert len(apply_to) == len(set(apply_to))
         assert 2**len(apply_to) == unitary.get_dimension()
@@ -21,19 +36,38 @@ class UnitarySequenceEntry:
         self.full_unitary_by_dimension = {}
 
     def get_dimension(self) -> int:
+        '''
+        Gets the dimension of the state space on which
+        this unitary acts.
+
+        :return: The state space dimension.
+        :rtype: int
+        '''
         return self.unitary.get_dimension()
 
     def get_apply_to(self) -> List[int]:
+        '''
+        Gets the qubits to which the operation is applied.
+
+        :return: The qubits to which the operation is applied.
+        :rtype: List[int]
+        '''
         return self.apply_to
 
     def get_permute_matrix(
         self,
         system_dimension: int
     ) -> np.ndarray:
-        """
+        '''
         Function returning permute matrix for given system dimension.
-        Adapted from qutip.permute._permute()
-        """
+        Adapted from qutip.permute._permute().
+
+        :param system_dimension: The dimension of the state space
+        of the system.
+        :type system_dimension: int
+        :return: The permute matrix.
+        :rtype: np.ndarray
+        '''
         assert system_dimension >= self.get_dimension()
         assert system_dimension >= 2**(np.max(self.get_apply_to()) + 1)
 
@@ -41,10 +75,10 @@ class UnitarySequenceEntry:
             sel: List[int],
             dims: List[int]
         ) -> np.ndarray:
-            """
-            Private function finding selected components
-            Copied from qutip.ptrace._select()
-            """
+            '''
+            Private function finding selected components.
+            Copied from qutip.ptrace._select().
+            '''
             sel = np.asarray(sel)  # make sure sel is np.array
             dims = np.asarray(dims)  # make sure dims is np.array
             rlst = dims.take(sel)
@@ -61,10 +95,10 @@ class UnitarySequenceEntry:
             dims: List[int],
             order: List[int]
         ) -> np.ndarray:
-            """
+            '''
             Private function giving permuted indices for permute function.
-            Copied from qutip.permute._perm_inds()
-            """
+            Copied from qutip.permute._perm_inds().
+            '''
             dims = np.asarray(dims)
             order = np.asarray(order)
             assert np.all(np.sort(order) == np.arange(len(dims))), \
@@ -100,6 +134,17 @@ class UnitarySequenceEntry:
         self,
         system_dimension: int
     ) -> Unitary:
+        '''
+        Gets the unitary operator acting on the space of the full system
+        obtained by applying this unitary sequence entry to the specified
+        subset of qubits.
+
+        :param system_dimension: The dimension of the state space
+        of the system.
+        :type system_dimension: int
+        :return: The unitary operator acting on the full system.
+        :rtype: Unitary
+        '''
         assert system_dimension >= self.get_dimension()
 
         if system_dimension not in self.full_unitary_by_dimension:

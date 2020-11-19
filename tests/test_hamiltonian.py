@@ -1,3 +1,6 @@
+'''
+Tests for stoqcompiler.hamiltonian modules.
+'''
 import pytest
 import numpy as np
 

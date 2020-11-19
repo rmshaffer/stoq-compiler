@@ -1,3 +1,6 @@
+'''
+Defines the Unitary class.
+'''
 import numpy as np
 import scipy.stats
 from typing import Dict, List, Optional, Tuple
