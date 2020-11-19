@@ -24,6 +24,7 @@ class ParameterizedUnitary:
 
         :param dimension: The dimension of the state space. For an n-qubit
         unitary, dimension should be set to 2**n.
+        :type dimension: int
         :param parameterized_matrix: A function that takes in the
         parameter values for this unitary and returns the matrix value when
         those parameter values are applied.
