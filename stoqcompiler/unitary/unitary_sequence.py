@@ -1,14 +1,34 @@
 import copy
 import numpy as np
+from typing import List
 
 from .unitary import Unitary
 from .unitary_sequence_entry import UnitarySequenceEntry
 
 
 class UnitarySequence:
+    def __init__(
+        self,
+        dimension: int,
+        sequence_entries: List[UnitarySequenceEntry] = []
+    ):
+        self.dimension = dimension
+
+        assert (isinstance(sequence_entries, list)
+                or isinstance(sequence_entries, np.ndarray))
+        [self.assert_is_entry_valid(entry) for entry in sequence_entries]
+
+        self.sequence_entries = copy.deepcopy(sequence_entries)
+        self.sequence_product = None
+
+        self.previous_entries = None
+        self.previous_sequence_product = None
 
     @classmethod
-    def combine(this_class, *sequences):
+    def combine(
+        this_class: 'UnitarySequence',
+        *sequences: 'UnitarySequence'
+    ) -> 'UnitarySequence':
         assert len(sequences) > 0
         assert np.all([
             isinstance(sequence, this_class)
@@ -29,42 +49,36 @@ class UnitarySequence:
         new_sequence.sequence_product = new_product
         return new_sequence
 
-    def __init__(self, dimension, sequence_entries=[]):
-        self.dimension = dimension
-
-        assert (isinstance(sequence_entries, list)
-                or isinstance(sequence_entries, np.ndarray))
-        [self.assert_is_entry_valid(entry) for entry in sequence_entries]
-
-        self.sequence_entries = copy.deepcopy(sequence_entries)
-        self.sequence_product = None
-
-        self.previous_entries = None
-        self.previous_sequence_product = None
-
-    def assert_is_entry_valid(self, sequence_entry):
+    def assert_is_entry_valid(
+        self,
+        sequence_entry: UnitarySequenceEntry
+    ) -> None:
         assert isinstance(sequence_entry, UnitarySequenceEntry), \
             type(sequence_entry)
         assert sequence_entry.get_dimension() <= self.dimension
-        assert 2**(np.max(sequence_entry.get_apply_to())+1) <= self.dimension
+        assert 2**(np.max(sequence_entry.get_apply_to()) + 1) <= self.dimension
 
-    def get_dimension(self):
+    def get_dimension(self) -> int:
         return self.dimension
 
-    def get_length(self):
+    def get_length(self) -> int:
         return len(self.sequence_entries)
 
-    def get_sequence_entries(self):
+    def get_sequence_entries(self) -> List[UnitarySequenceEntry]:
         return copy.deepcopy(self.sequence_entries)
 
-    def save_undo_state(self):
+    def save_undo_state(self) -> None:
         self.previous_entries = copy.deepcopy(self.sequence_entries)
         if self.sequence_product:
             self.previous_sequence_product = Unitary(
                 self.sequence_product.get_dimension(),
                 self.sequence_product.get_matrix())
 
-    def append_first(self, sequence_entry, save_undo=True):
+    def append_first(
+        self,
+        sequence_entry: UnitarySequenceEntry,
+        save_undo: bool = True
+    ) -> None:
         self.assert_is_entry_valid(sequence_entry)
 
         if save_undo:
@@ -75,7 +89,11 @@ class UnitarySequence:
             self.sequence_product = self.sequence_product.right_multiply(
                 u_appended)
 
-    def append_last(self, sequence_entry, save_undo=True):
+    def append_last(
+        self,
+        sequence_entry: UnitarySequenceEntry,
+        save_undo: bool = True
+    ) -> None:
         self.assert_is_entry_valid(sequence_entry)
 
         if save_undo:
@@ -86,7 +104,10 @@ class UnitarySequence:
             self.sequence_product = self.sequence_product.left_multiply(
                 u_appended)
 
-    def remove_first(self, save_undo=True):
+    def remove_first(
+        self,
+        save_undo: bool = True
+    ) -> None:
         if self.get_length() > 0:
             if save_undo:
                 self.save_undo_state()
@@ -96,7 +117,10 @@ class UnitarySequence:
                 self.sequence_product = self.sequence_product.right_multiply(
                     u_removed.inverse())
 
-    def remove_last(self, save_undo=True):
+    def remove_last(
+        self,
+        save_undo: bool = True
+    ) -> None:
         if self.get_length() > 0:
             if save_undo:
                 self.save_undo_state()
@@ -106,7 +130,7 @@ class UnitarySequence:
                 self.sequence_product = self.sequence_product.left_multiply(
                     u_removed.inverse())
 
-    def undo(self):
+    def undo(self) -> None:
         assert self.previous_entries is not None, "can't undo"
 
         self.sequence_entries = self.previous_entries
@@ -115,7 +139,7 @@ class UnitarySequence:
         self.previous_entries = None
         self.previous_sequence_product = None
 
-    def product(self):
+    def product(self) -> Unitary:
         if self.sequence_product is None:
             sequence_product = Unitary(self.dimension)
             for entry in self.sequence_entries:
@@ -126,7 +150,7 @@ class UnitarySequence:
 
         return self.sequence_product
 
-    def inverse(self):
+    def inverse(self) -> 'UnitarySequence':
         inverse_sequence = UnitarySequence(
             self.get_dimension(), self.get_sequence_entries())
         inverse_sequence.sequence_entries.reverse()
@@ -136,19 +160,19 @@ class UnitarySequence:
         inverse_sequence.sequence_product = self.product().inverse()
         return inverse_sequence
 
-    def get_jaqal(self):
+    def get_jaqal(self) -> str:
         return "// JAQAL generated from UnitarySequence.get_jaqal()\n" + \
             "\n".join([
                 entry.get_full_unitary(self.get_dimension()).get_jaqal()
                 for entry in self.sequence_entries])
 
-    def get_qasm(self):
+    def get_qasm(self) -> str:
         return "# QASM generated from UnitarySequence.get_qasm()\n" + \
             "\n".join([
                 entry.get_full_unitary(self.get_dimension()).get_qasm()
                 for entry in self.sequence_entries])
 
-    def get_display_output(self):
+    def get_display_output(self) -> str:
         return "# Generated from UnitarySequence.get_display_output()\n" + \
             "\n".join([
                 entry.get_full_unitary(self.get_dimension()).get_display_name()

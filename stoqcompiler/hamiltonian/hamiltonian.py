@@ -2,9 +2,11 @@ import copy
 import numpy as np
 import random
 import itertools
+from typing import Iterable, List, Tuple
 
-from stoqcompiler.compiler import Compiler
+from stoqcompiler.compiler import Compiler, CompilerResult
 from stoqcompiler.unitary import (
+    Unitary,
     UnitaryPrimitive,
     UnitarySequence,
     UnitarySequenceEntry,
@@ -16,7 +18,10 @@ from .hamiltonian_term import HamiltonianTerm
 
 class Hamiltonian:
 
-    def __init__(self, terms):
+    def __init__(
+        self,
+        terms: List[HamiltonianTerm]
+    ):
         assert isinstance(terms, list)
         assert len(terms) > 0
         assert np.all([
@@ -28,17 +33,24 @@ class Hamiltonian:
 
         self.terms = copy.deepcopy(terms)
 
-    def get_dimension(self):
+    def get_dimension(self) -> int:
         return self.dimension
 
-    def get_qubit_count(self):
+    def get_qubit_count(self) -> int:
         return int(np.log2(self.get_dimension()))
 
-    def get_time_evolution_operator(self, time):
+    def get_time_evolution_operator(
+        self,
+        time: float
+    ) -> Unitary:
         h = np.sum([term.get_matrix() for term in self.terms], axis=0)
         return UnitaryDefinitions.time_evolution(h, time)
 
-    def get_ideal_sequence(self, time, num_steps):
+    def get_ideal_sequence(
+        self,
+        time: float,
+        num_steps: int
+    ) -> UnitarySequence:
         sequence_entries = []
         time_per_step = time / num_steps
         u = self.get_time_evolution_operator(time_per_step)
@@ -49,7 +61,12 @@ class Hamiltonian:
 
         return UnitarySequence(self.get_dimension(), sequence_entries)
 
-    def get_trotter_sequence(self, time, num_trotter_steps, randomize=False):
+    def get_trotter_sequence(
+        self,
+        time: float,
+        num_trotter_steps: int,
+        randomize: bool = False
+    ) -> UnitarySequence:
         sequence_entries = []
         time_per_step = time / num_trotter_steps
         apply_to = list(range(self.get_qubit_count()))
@@ -60,13 +77,17 @@ class Hamiltonian:
             for term_index in term_indices:
                 term = self.terms[term_index]
                 u = UnitaryDefinitions.time_evolution(
-                        term.get_matrix(), time_per_step, term_index)
+                    term.get_matrix(), time_per_step, term_index)
                 entry = UnitarySequenceEntry(u, apply_to)
                 sequence_entries.append(entry)
 
         return UnitarySequence(self.get_dimension(), sequence_entries)
 
-    def get_qdrift_sequence(self, time, num_repetitions):
+    def get_qdrift_sequence(
+        self,
+        time: float,
+        num_repetitions: int
+    ) -> UnitarySequence:
         # QDRIFT as per Campbell, PRL 123, 070503 (2019)
         sequence_entries = []
         coefficients = [term.get_coefficient() for term in self.terms]
@@ -78,23 +99,32 @@ class Hamiltonian:
             term = np.random.choice(self.terms, p=prob_coefficients)
             display_suffix = str(self.terms.index(term)) + ' λ/N'
             u = UnitaryDefinitions.time_evolution(
-                    term.get_normalized_matrix(),
-                    time_per_step, display_suffix)
+                term.get_normalized_matrix(),
+                time_per_step, display_suffix)
             entry = UnitarySequenceEntry(u, apply_to)
             sequence_entries.append(entry)
 
         return UnitarySequence(self.get_dimension(), sequence_entries)
 
     def compile_stoq_sequence(
-            self, time, max_t_step, threshold, allow_simultaneous_terms=False):
+        self,
+        time: float,
+        max_t_step: float,
+        threshold: float,
+        allow_simultaneous_terms: bool = False
+    ) -> CompilerResult:
         # STOQ as per Shaffer et al., arXiv:2003.04500 (2020)
         target_unitary = self.get_time_evolution_operator(time)
         return self._compile_stoq_sequence_for_target_unitary(
             target_unitary, max_t_step, threshold, allow_simultaneous_terms)
 
     def _compile_stoq_sequence_for_target_unitary(
-            self, target_unitary, max_t_step, threshold,
-            allow_simultaneous_terms):
+        self,
+        target_unitary: Unitary,
+        max_t_step: float,
+        threshold: float,
+        allow_simultaneous_terms: bool
+    ) -> CompilerResult:
         unitary_primitives = self._get_unitary_primitives(
             max_t_step, allow_simultaneous_terms)
 
@@ -105,7 +135,11 @@ class Hamiltonian:
 
         return result
 
-    def _get_unitary_primitives(self, max_t_step, allow_simultaneous_terms):
+    def _get_unitary_primitives(
+        self,
+        max_t_step: float,
+        allow_simultaneous_terms: bool
+    ) -> List[UnitaryPrimitive]:
         unitary_primitives = []
         apply_to = list(range(self.get_qubit_count()))
         for indices, term_subset in self._get_term_subsets(
@@ -116,12 +150,15 @@ class Hamiltonian:
             primitive = UnitaryPrimitive(
                 ParameterizedUnitaryDefinitions.time_evolution(
                     term_subset_sum, -max_t_step, max_t_step, h_suffix
-                    ), [apply_to])
+                ), [apply_to])
             unitary_primitives.append(primitive)
 
         return unitary_primitives
 
-    def _get_term_subsets(self, allow_simultaneous_terms):
+    def _get_term_subsets(
+        self,
+        allow_simultaneous_terms: bool
+    ) -> Iterable[Tuple[List[int], List[HamiltonianTerm]]]:
         if allow_simultaneous_terms:
             for subset_size in range(1, len(self.terms) + 1):
                 for indices in itertools.combinations(
@@ -132,7 +169,12 @@ class Hamiltonian:
                 yield [i], [term]
 
     def compile_rav_sequence(
-            self, time, max_t_step, threshold, allow_simultaneous_terms=False):
+        self,
+        time: float,
+        max_t_step: float,
+        threshold: float,
+        allow_simultaneous_terms: bool = False
+    ) -> CompilerResult:
         # Randomized analog verification (RAV) as per Shaffer et al.,
         # arXiv:2003.04500 (2020)
 

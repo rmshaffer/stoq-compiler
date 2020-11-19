@@ -12,34 +12,33 @@ from stoqcompiler.unitary import (
 
 
 class TestUnitary:
-
-    def test_default(self):
+    def test_default(self) -> None:
         dimension = 4
         unitary = Unitary(dimension)
 
         assert unitary.get_dimension() == dimension
         assert unitary.close_to(np.identity(dimension))
 
-    def test_non_square_matrix(self):
+    def test_non_square_matrix(self) -> None:
         dimension = 2
         with pytest.raises(Exception):
             Unitary(dimension, np.array([[1, 0, 0], [0, 1, 0]]))
 
-    def test_non_unitary_matrix(self):
+    def test_non_unitary_matrix(self) -> None:
         dimension = 2
         with pytest.raises(Exception):
             Unitary(dimension, np.array([[1, 0], [1, 1]]))
 
-    def test_mismatched_dimension(self):
+    def test_mismatched_dimension(self) -> None:
         dimension = 4
         with pytest.raises(Exception):
             Unitary(dimension, np.identity(dimension - 1))
 
-    def test_inverse_fixed(self):
+    def test_inverse_fixed(self) -> None:
         dimension = 2
         operation_name = 'U'
         unitary = Unitary(dimension, np.array([
-            [np.exp(1j*np.pi/4), 0],
+            [np.exp(1j * np.pi / 4), 0],
             [0, 1j]]), operation_name)
         inverse = unitary.inverse()
 
@@ -51,7 +50,7 @@ class TestUnitary:
         assert double_inverse.get_display_name() == 'U'
         assert unitary.close_to(double_inverse)
 
-    def test_inverse_random(self):
+    def test_inverse_random(self) -> None:
         dimension = 2
         unitary = Unitary.random(dimension)
         inverse = unitary.inverse()
@@ -59,7 +58,7 @@ class TestUnitary:
         assert unitary.left_multiply(inverse).close_to(np.identity(dimension))
         assert unitary.right_multiply(inverse).close_to(np.identity(dimension))
 
-    def test_tensor(self):
+    def test_tensor(self) -> None:
         dimension = 2
         unitary = Unitary(dimension)
         tensor_product = unitary.tensor(unitary)
@@ -76,7 +75,7 @@ class TestUnitary:
         tensor_product = tensor_product.left_multiply(tensor_product)
         assert tensor_product.close_to(np.identity(dimension ** 2))
 
-    def test_multiply(self):
+    def test_multiply(self) -> None:
         dimension = 2
         identity = Unitary.identity(dimension)
 
@@ -90,19 +89,20 @@ class TestUnitary:
         product = product.left_multiply(UnitaryDefinitions.sigmaz())
         assert product.close_to(identity)
 
-    def test_rphi(self):
-        theta_values = [0, np.pi/8, np.pi/4, np.pi, 3*np.pi/2, -np.pi/4]
+    def test_rphi(self) -> None:
+        theta_values = [
+            0, np.pi / 8, np.pi / 4, np.pi, 3 * np.pi / 2, -np.pi / 4]
         for theta in theta_values:
             assert UnitaryDefinitions.rphi(theta, 0).close_to(
                 UnitaryDefinitions.rx(theta))
-            assert UnitaryDefinitions.rphi(theta, np.pi/2).close_to(
+            assert UnitaryDefinitions.rphi(theta, np.pi / 2).close_to(
                 UnitaryDefinitions.ry(theta))
 
-    def test_display_name(self):
+    def test_display_name(self) -> None:
         dimension = 2
         operation_name = "Rx"
         unitary = Unitary(dimension, np.array([
-            [np.exp(1j*np.pi/4), 0],
+            [np.exp(1j * np.pi / 4), 0],
             [0, 1j]]), operation_name)
         display_name_with_zero_parameters = unitary.get_display_name()
         assert isinstance(display_name_with_zero_parameters, str)
@@ -127,15 +127,15 @@ class TestUnitary:
         assert parameter_name_1 in display_name_with_two_parameters
         assert parameter_name_2 in display_name_with_two_parameters
 
-    def test_qasm(self):
+    def test_qasm(self) -> None:
         dimension = 2
         operation_name = "Rx"
         unitary = Unitary(dimension, np.array([
-            [np.exp(1j*np.pi/4), 0],
+            [np.exp(1j * np.pi / 4), 0],
             [0, 1j]]), operation_name)
         assert unitary.get_qasm() == operation_name + "\t" + "q[0];"
 
-    def test_gms(self):
+    def test_gms(self) -> None:
         for num_qubits in [3, 4, 5]:
             u = UnitaryDefinitions.gms(num_qubits)
             assert (u.left_multiply(u).left_multiply(u).left_multiply(u)
@@ -144,24 +144,28 @@ class TestUnitary:
 
 class TestParameterizedUnitary:
 
-    def test_parameterized_rotation(self):
+    def test_parameterized_rotation(self) -> None:
         dimension = 2
 
-        def rotation_matrix(alpha, beta, gamma):
+        def rotation_matrix(
+            alpha: float,
+            beta: float,
+            gamma: float
+        ) -> np.ndarray:
             return np.array(
-                [[np.cos(beta/2) * np.exp(-1j*(alpha+gamma)/2),
-                    -np.sin(beta/2) * np.exp(-1j*(alpha-gamma)/2)],
-                 [np.sin(beta/2) * np.exp(1j*(alpha-gamma)/2),
-                    np.cos(beta/2) * np.exp(1j*(alpha+gamma)/2)]])
+                [[np.cos(beta / 2) * np.exp(-1j * (alpha + gamma) / 2),
+                    -np.sin(beta / 2) * np.exp(-1j * (alpha - gamma) / 2)],
+                 [np.sin(beta / 2) * np.exp(1j * (alpha - gamma) / 2),
+                    np.cos(beta / 2) * np.exp(1j * (alpha + gamma) / 2)]])
 
         min_value = 0
-        max_value = 2*np.pi
+        max_value = 2 * np.pi
         parameters = [ParameterizedUnitaryParameter(
-                        "alpha", min_value, max_value, is_angle=True),
+                      "alpha", min_value, max_value, is_angle=True),
                       ParameterizedUnitaryParameter(
-                        "beta", min_value, max_value, is_angle=True),
+                      "beta", min_value, max_value, is_angle=True),
                       ParameterizedUnitaryParameter(
-                        "gamma", min_value, max_value, is_angle=True)]
+                      "gamma", min_value, max_value, is_angle=True)]
         operation_name = "R"
 
         rotation = ParameterizedUnitary(
@@ -190,7 +194,7 @@ class TestParameterizedUnitary:
             random_rotation_unitary.inverse()).close_to(
                 Unitary.identity(dimension))
 
-    def test_parameterized_unitary_classmethods(self):
+    def test_parameterized_unitary_classmethods(self) -> None:
         rotation_xy = ParameterizedUnitaryDefinitions.rotation_xy()
         zero_rotation_unitary = rotation_xy.as_unitary([0, 0])
         assert zero_rotation_unitary.close_to(
@@ -202,7 +206,7 @@ class TestParameterizedUnitary:
             Unitary.identity(rotation_xyz.get_dimension()))
 
         xx = ParameterizedUnitaryDefinitions.xx()
-        xx_angle = 2*np.pi
+        xx_angle = 2 * np.pi
         full_rotation_unitary = xx.as_unitary([xx_angle])
         assert full_rotation_unitary.close_to(
             Unitary.identity(xx.get_dimension()))
@@ -211,7 +215,7 @@ class TestParameterizedUnitary:
         assert (xx_angle, True) == full_rotation_unitary.get_parameter_value(
             angle_parameter_name)
 
-    def test_parameterized_unitary_time_evolution(self):
+    def test_parameterized_unitary_time_evolution(self) -> None:
         sigmax = np.array([[0, 1], [1, 0]])
         t_min = -1.234
         t_max = 1.234
@@ -228,10 +232,12 @@ class TestParameterizedUnitary:
 
         time_parameter_name = (time_evolution.get_parameters()[0]
                                .get_parameter_name())
-        assert ((evolution_time, False) ==
-                forward_time_unitary.get_parameter_value(time_parameter_name))
-        assert ((-evolution_time, False) ==
-                backward_time_unitary.get_parameter_value(time_parameter_name))
+        assert (
+            (evolution_time, False)
+            == forward_time_unitary.get_parameter_value(time_parameter_name))
+        assert (
+            (-evolution_time, False)
+            == backward_time_unitary.get_parameter_value(time_parameter_name))
 
         with pytest.raises(Exception):
             # switch ordering of t_min and t_max
@@ -245,7 +251,7 @@ class TestParameterizedUnitary:
 
 class TestUnitarySequenceEntry:
 
-    def test_identity(self):
+    def test_identity(self) -> None:
         dimension = 2
         entry = UnitarySequenceEntry(Unitary.identity(dimension), [0])
         assert entry.get_dimension() == dimension
@@ -255,7 +261,7 @@ class TestUnitarySequenceEntry:
             full_unitary = entry.get_full_unitary(system_dimension)
             assert full_unitary.close_to(Unitary.identity(system_dimension))
 
-    def test_cnot(self):
+    def test_cnot(self) -> None:
         entry = UnitarySequenceEntry(UnitaryDefinitions.cnot(), [0, 1])
 
         with pytest.raises(Exception):
@@ -278,7 +284,7 @@ class TestUnitarySequenceEntry:
         assert full_unitary.left_multiply(full_unitary).close_to(
             Unitary.identity(system_dimension))
 
-    def test_cnot_swapped(self):
+    def test_cnot_swapped(self) -> None:
         dimension = 4
         entry = UnitarySequenceEntry(UnitaryDefinitions.cnot(), [1, 0])
 
@@ -293,16 +299,16 @@ class TestUnitarySequenceEntry:
 
 class TestUnitarySequence:
 
-    def test_default(self):
+    def test_default(self) -> None:
         dimension = 2
         sequence = UnitarySequence(dimension)
 
         assert sequence.get_dimension() == dimension
         assert sequence.product().close_to(np.identity(dimension))
 
-    def test_identity_roots_correct(self):
+    def test_identity_roots_correct(self) -> None:
         dimension = 2
-        t = Unitary(dimension, np.array([[1, 0], [0, np.exp(1j*np.pi/4)]]))
+        t = Unitary(dimension, np.array([[1, 0], [0, np.exp(1j * np.pi / 4)]]))
         t_entry = UnitarySequenceEntry(t, [0])
         sequence = UnitarySequence(dimension, np.repeat(t_entry, 8))
 
@@ -310,9 +316,9 @@ class TestUnitarySequence:
         assert sequence.get_length() == 8
         assert sequence.product().close_to(np.identity(dimension))
 
-    def test_identity_roots_incorrect(self):
+    def test_identity_roots_incorrect(self) -> None:
         dimension = 2
-        t = Unitary(dimension, np.array([[1, 0], [0, np.exp(1j*np.pi/4)]]))
+        t = Unitary(dimension, np.array([[1, 0], [0, np.exp(1j * np.pi / 4)]]))
         t_entry = UnitarySequenceEntry(t, [0])
         sequence = UnitarySequence(dimension, np.repeat(t_entry, 7))
 
@@ -320,7 +326,7 @@ class TestUnitarySequence:
         assert sequence.get_length() == 7
         assert not sequence.product().close_to(np.identity(dimension))
 
-    def test_append_and_remove(self):
+    def test_append_and_remove(self) -> None:
         dimension = 2
         identity = Unitary.identity(dimension)
 
@@ -355,7 +361,7 @@ class TestUnitarySequence:
         assert sequence.get_length() == 0
         assert sequence.product().close_to(identity)
 
-    def test_undo(self):
+    def test_undo(self) -> None:
         dimension = 2
 
         identity = Unitary.identity(dimension)
@@ -396,9 +402,9 @@ class TestUnitarySequence:
         with pytest.raises(Exception):
             sequence.undo()
 
-    def test_combine(self):
+    def test_combine(self) -> None:
         dimension = 2
-        t = Unitary(dimension, np.array([[1, 0], [0, np.exp(1j*np.pi/4)]]))
+        t = Unitary(dimension, np.array([[1, 0], [0, np.exp(1j * np.pi / 4)]]))
         t_entry = UnitarySequenceEntry(t, [0])
         sequence_1 = UnitarySequence(
             dimension, np.repeat(t_entry, 3))
@@ -407,15 +413,15 @@ class TestUnitarySequence:
                 UnitarySequenceEntry(UnitaryDefinitions.sigmay(), [0])])
 
         combined_sequence = UnitarySequence.combine(sequence_1, sequence_2)
-        assert (combined_sequence.get_length() ==
-                (sequence_1.get_length() + sequence_2.get_length()))
+        assert (combined_sequence.get_length()
+                == sequence_1.get_length() + sequence_2.get_length())
         assert combined_sequence.product().close_to(
             sequence_1.product().left_multiply(sequence_2.product()))
 
-    def test_inverse(self):
+    def test_inverse(self) -> None:
         dimension = 2
-        rx_entry = UnitarySequenceEntry(UnitaryDefinitions.rx(np.pi/3), [0])
-        ry_entry = UnitarySequenceEntry(UnitaryDefinitions.ry(np.pi/3), [0])
+        rx_entry = UnitarySequenceEntry(UnitaryDefinitions.rx(np.pi / 3), [0])
+        ry_entry = UnitarySequenceEntry(UnitaryDefinitions.ry(np.pi / 3), [0])
         sequence = UnitarySequence(dimension, [rx_entry, ry_entry])
         product = sequence.product()
 
@@ -427,10 +433,10 @@ class TestUnitarySequence:
         inverse_product = inverse_sequence.product()
         assert inverse_product.close_to(product.inverse())
 
-    def test_qasm(self):
+    def test_qasm(self) -> None:
         dimension = 2
-        rx_entry = UnitarySequenceEntry(UnitaryDefinitions.rx(np.pi/3), [0])
-        ry_entry = UnitarySequenceEntry(UnitaryDefinitions.ry(np.pi/3), [0])
+        rx_entry = UnitarySequenceEntry(UnitaryDefinitions.rx(np.pi / 3), [0])
+        ry_entry = UnitarySequenceEntry(UnitaryDefinitions.ry(np.pi / 3), [0])
         sequence = UnitarySequence(dimension, [rx_entry, ry_entry])
         assert sequence.get_qasm()
         assert sequence.get_display_output()

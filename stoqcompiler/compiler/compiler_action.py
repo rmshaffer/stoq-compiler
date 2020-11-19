@@ -9,11 +9,15 @@ class CompilerAction(Enum):
     RemoveLast = 4
 
     @staticmethod
-    def is_append(value):
+    def is_append(
+        value: int
+    ) -> bool:
         return (value == CompilerAction.AppendFirst
                 or value == CompilerAction.AppendLast)
 
     @staticmethod
-    def is_remove(value):
+    def is_remove(
+        value: int
+    ) -> bool:
         return (value == CompilerAction.RemoveFirst
                 or value == CompilerAction.RemoveLast)
