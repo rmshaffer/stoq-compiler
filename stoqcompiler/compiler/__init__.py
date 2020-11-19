@@ -1,3 +1,6 @@
+'''
+Provides the STOQ compiler implementation.
+'''
 
 from .compiler import Compiler
 from .compiler_action import CompilerAction

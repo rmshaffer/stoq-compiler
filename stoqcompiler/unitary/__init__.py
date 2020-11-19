@@ -1,4 +1,6 @@
-
+'''
+Provides classes for defining unitaries and sequences of unitaries.
+'''
 from .parameterized_unitary import ParameterizedUnitary
 from .parameterized_unitary_parameter import ParameterizedUnitaryParameter
 from .parameterized_unitary_definitions import ParameterizedUnitaryDefinitions

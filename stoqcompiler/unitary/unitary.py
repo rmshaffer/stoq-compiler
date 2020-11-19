@@ -1,9 +1,15 @@
+'''
+Defines the Unitary class.
+'''
 import numpy as np
 import scipy.stats
 from typing import Dict, List, Optional, Tuple
 
 
 class Unitary:
+    '''
+    Represents a unitary operation.
+    '''
     def __init__(
         self,
         dimension: int,
@@ -13,6 +19,29 @@ class Unitary:
         is_inverse: bool = False,
         apply_to: List[int] = []
     ):
+        '''
+        Creates a Unitary object.
+
+        :param dimension: The dimension of the state space. For an n-qubit
+        unitary, dimension should be set to 2**n.
+        :type dimension: int
+        :param matrix: The unitary matrix representing this operation,
+        defaults to None. If not specified, an identity matrix is used.
+        :type matrix: Optional[np.ndarray], optional
+        :param operation_name: The display name associated with this
+        unitary operation.
+        :type operation_name: str
+        :param parameter_dict: The display parameters associated with this
+        unitary operation, as a dictionary mapping the parameter name to its
+        parameter value and whether it is an angle, defaults to None.
+        :type parameter_dict: Optional[Dict[str, Tuple[float, bool]]], optional
+        :param is_inverse: Whether to display this unitary as an inverse,
+        defaults to False.
+        :type is_inverse: bool, optional
+        :param apply_to: The qubits to which this unitary is applied,
+        defaults to [].
+        :type apply_to: List[int], optional
+        '''
         assert dimension > 0
 
         if matrix is None:
@@ -53,18 +82,50 @@ class Unitary:
 
     @staticmethod
     def identity(dimension: int) -> 'Unitary':
+        '''
+        The identity operator of the given dimension.
+
+        :param dimension: The dimension of the state space. For an n-qubit
+        unitary, dimension should be set to 2**n.
+        :type dimension: int
+        :return: The identity operator.
+        :rtype: Unitary
+        '''
         operation_name = "I"
         return Unitary(dimension, np.identity(dimension), operation_name)
 
     @staticmethod
     def random(dimension: int) -> 'Unitary':
+        '''
+        A randomly-generated operator acting on the given dimension.
+
+        :param dimension: The dimension of the state space. For an n-qubit
+        unitary, dimension should be set to 2**n.
+        :type dimension: int
+        :return: The randomly-generated unitary operator.
+        :rtype: Unitary
+        '''
         random_matrix = scipy.stats.unitary_group.rvs(dimension)
         return Unitary(dimension, random_matrix)
 
     def get_operation_name(self) -> str:
+        '''
+        Gets the name associated with this unitary operation.
+
+        :return: The operation name.
+        :rtype: str
+        '''
         return self.operation_name
 
     def get_jaqal(self) -> str:
+        '''
+        Returns a JAQAL-like representation of this unitary operation.
+        This is a minimal-effort function and is not guaranteed to
+        be a valid JAQAL statement (and very likely will not be).
+
+        :return: The JAQAL representation of this unitary operation.
+        :rtype: str
+        '''
         def as_decimal(value: float) -> str:
             return str(round(value, 7))
 
@@ -84,6 +145,14 @@ class Unitary:
         return self.operation_name + " " + qubits + " " + parameters
 
     def get_qasm(self) -> str:
+        '''
+        Returns a QASM-like representation of this unitary operation.
+        This is a minimal-effort function and is not guaranteed to
+        be a valid QASM statement (and very likely will not be).
+
+        :return: The QASM representation of this unitary operation.
+        :rtype: str
+        '''
         def as_pi_fraction(value: float) -> str:
             return "pi*" + str(round(value / np.pi, 7))
 
@@ -107,6 +176,13 @@ class Unitary:
         return self.operation_name + parameters + qubits + ";"
 
     def get_display_name(self) -> str:
+        '''
+        Gets the display string, including parameters, associated with
+        this unitary operation.
+
+        :return: The operation display string.
+        :rtype: str
+        '''
         def as_pi_fraction(value: float) -> str:
             return str(round(value / np.pi, 3)) + "π"
 
@@ -127,20 +203,49 @@ class Unitary:
         return display_name
 
     def get_dimension(self) -> int:
+        '''
+        Gets the dimension of the state space on which
+        this unitary acts.
+
+        :return: The state space dimension.
+        :rtype: int
+        '''
         return self.matrix.shape[0]
 
     def get_matrix(self) -> np.ndarray:
+        '''
+        Gets the unitary matrix associated with this operation.
+
+        :return: The unitary matrix.
+        :rtype: np.ndarray
+        '''
         return self.matrix
 
     def get_parameter_value(
         self,
         key: str
     ) -> Optional[Tuple[float, bool]]:
+        '''
+        Gets the value of the specified parameter, along
+        with whether the parameter represents an angle.
+
+        :param key: The parameter name.
+        :type key: str
+        :return: A tuple containing the parameter value and
+        whether the parameter represents an angle.
+        :rtype: Optional[Tuple[float, bool]]
+        '''
         if key in self.parameter_dict:
             return self.parameter_dict[key]
         return None
 
     def inverse(self) -> 'Unitary':
+        '''
+        Gets the inverse of this unitary operation.
+
+        :return: The inverse unitary object.
+        :rtype: Unitary
+        '''
         is_inverse = not self.is_inverse
         return Unitary(
             self.get_dimension(), self.get_matrix().T.conj(),
@@ -151,6 +256,13 @@ class Unitary:
         self,
         u: 'Unitary'
     ) -> 'Unitary':
+        '''
+        Gets the unitary representing the tensor product of this
+        unitary with the passed-in unitary.
+
+        :return: The unitary representing the tensor product.
+        :rtype: Unitary
+        '''
         assert isinstance(u, Unitary)
 
         new_dimension = u.get_dimension() * self.get_dimension()
@@ -168,6 +280,20 @@ class Unitary:
         u: 'Unitary',
         threshold: Optional[float] = None
     ) -> bool:
+        '''
+        Determines whether the provided unitary is close to
+        the current unitary, optionally using the specified threshold.
+
+        :param u: The unitary to compare to this one.
+        :type u: Unitary
+        :param threshold: The maximum distance between unitaries that
+        should still be considered "close", defaults to None.
+        :type threshold: Optional[float], optional
+        :return: Whether the distance between the unitaries is within
+        the given threshold, or within numpy's default tolerance if
+        no threshold is provided.
+        :rtype: bool
+        '''
         distance = self.distance_from(u)
         if threshold:
             max_distance = 1.0 - threshold
@@ -179,6 +305,15 @@ class Unitary:
         self,
         u: 'Unitary'
     ) -> float:
+        '''
+        Calculates the distance between the given unitary and this one.
+
+        :param u: The unitary to compare.
+        :type u: Unitary
+        :return: The Hilbert-Schmidt distance, normalized so that the
+        result is between 0 and 1.
+        :rtype: float
+        '''
         if isinstance(u, Unitary):
             u = u.get_matrix()
 
@@ -194,6 +329,13 @@ class Unitary:
         self,
         factor: 'Unitary'
     ) -> 'Unitary':
+        '''
+        Returns the product when multiplying the specified factor
+        from the left.
+
+        :return: The product.
+        :rtype: Unitary.
+        '''
         assert self.get_dimension() == factor.get_dimension()
         return Unitary(
             self.get_dimension(), factor.get_matrix() @ self.get_matrix())
@@ -202,6 +344,13 @@ class Unitary:
         self,
         factor: 'Unitary'
     ) -> 'Unitary':
+        '''
+        Returns the product when multiplying the specified factor
+        from the right.
+
+        :return: The product.
+        :rtype: Unitary.
+        '''
         assert self.get_dimension() == factor.get_dimension()
         return Unitary(
             self.get_dimension(), self.get_matrix() @ factor.get_matrix())

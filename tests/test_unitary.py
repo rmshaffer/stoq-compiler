@@ -1,3 +1,6 @@
+'''
+Tests for stoqcompiler.unitary modules.
+'''
 import pytest
 import numpy as np
 

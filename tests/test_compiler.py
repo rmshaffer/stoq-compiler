@@ -1,3 +1,6 @@
+'''
+Tests for stoqcompiler.compiler modules.
+'''
 import pytest
 import numpy as np
 

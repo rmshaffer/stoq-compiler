@@ -1,3 +1,6 @@
+'''
+Tests for stoqcompiler.verification modules.
+'''
 from stoqcompiler.verification import Verification
 from stoqcompiler.compiler import CompilerResult
 from stoqcompiler.unitary import (
