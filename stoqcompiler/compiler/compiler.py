@@ -1,3 +1,6 @@
+'''
+Defines the Compiler class implementing STOQ compilation.
+'''
 import copy
 import numpy as np
 import time
@@ -15,27 +18,57 @@ from .compiler_result import CompilerResult
 
 
 class Compiler:
+    '''
+    Implements the STOQ compilation technique.
+    '''
 
     def __init__(
         self,
         dimension: int,
         append_probability: float = 0.5,
-        unitary_primitive_probabilities: Optional[List[float]] = None,
         annealing_rate: float = 0.1
     ):
+        '''
+        Creates a Compiler object.
+
+        :param dimension: The dimension of the state space. For an n-qubit
+        system, dimension should be set to 2**n.
+        :type dimension: int
+        :param append_probability: Probability of appending a new gate at each
+        step in the compilation, defaults to 0.5.
+        :type append_probability: float, optional
+        :param annealing_rate: Rate at which MCMC annealing occurs during the
+        compilation process, defaults to 0.1.
+        :type annealing_rate: float, optional
+        '''
         assert dimension > 0
         self.dimension = dimension
         self.unitary_primitives = []
+        self.unitary_primitive_probabilities = None
         self.max_beta = (2**dimension) ** 2
         self.beta = 0.0
         self.annealing_rate = annealing_rate
         self.append_probability = append_probability
-        self.unitary_primitive_probabilities = unitary_primitive_probabilities
 
     def set_unitary_primitives(
         self,
-        unitary_primitives: List[UnitaryPrimitive]
+        unitary_primitives: List[UnitaryPrimitive],
+        unitary_primitive_probabilities: Optional[List[float]] = None
     ) -> None:
+        '''
+        Sets the unitary primitives and associated probabilities for
+        use in the STOQ compilation process.
+
+        :param unitary_primitives: The unitary primitives to be used for
+        the compilation.
+        :type unitary_primitives: List[UnitaryPrimitive]
+        :param unitary_primitive_probabilities: The probability for STOQ to
+        choose each of the primitives specified in unitary_primitives when
+        proposing new gates at each step of the compilation process, defaults
+        to None. If not specified, each unitary primitive is chosen with
+        uniform probability.
+        :type unitary_primitive_probabilities: Optional[List[float]], optional
+        '''
         assert (isinstance(unitary_primitives, list)
                 or isinstance(unitary_primitives, np.ndarray))
         assert np.all([
@@ -47,12 +80,35 @@ class Compiler:
 
         self.unitary_primitives = copy.deepcopy(unitary_primitives)
 
+        if unitary_primitive_probabilities:
+            self.unitary_primitive_probabilities = copy.deepcopy(
+                unitary_primitive_probabilities)
+
     def compile(
         self,
         target_unitary: Unitary,
         threshold: Optional[float] = None,
         max_step_count: int = np.iinfo(np.int32).max
     ) -> CompilerResult:
+        '''
+        Compiles a unitary sequence approximately implementing the specified
+        unitary using the STOQ compilation technique.
+
+        :param target_unitary: The target unitary to be compiled.
+        :type target_unitary: Unitary
+        :param threshold: The overlap with the target unitary at which to
+        stop compilation, defaults to None. A value of 1.0 implies an exact
+        compilation. If None, a threshold of 1.0 is used.
+        :type threshold: Optional[float], optional
+        :param max_step_count: Maximum number of steps to perform while
+        attempting to perform the approximate compilation, defaults to
+        np.iinfo(np.int32).max. Compilation will terminate after this number
+        of steps regardless of whether the threshold has been reached.
+        :type max_step_count: int, optional
+        :return: The CompilerResult object containing the output of
+        the compilation.
+        :rtype: CompilerResult
+        '''
         assert isinstance(target_unitary, Unitary)
         assert self.unitary_primitives
 
@@ -72,6 +128,29 @@ class Compiler:
         threshold: Optional[float] = None,
         max_step_count: int = np.iinfo(np.int32).max
     ) -> CompilerResult:
+        '''
+        Compiles a unitary sequence approximately implementing the specified
+        unitary using the layered STOQ compilation technique.
+
+        :param target_unitary: The target unitary to be compiled.
+        :type target_unitary: Unitary
+        :param unitary_primitive_counts: Specifies the fixed set of unitary
+        primitives to be contained in each layer of the compilation. Each key
+        is the unitary primitive to be included, and each value is the count
+        of that unitary primitive per layer.
+        :type unitary_primitive_counts: Dict[UnitaryPrimitive, int]
+        :param threshold: The overlap with the target unitary at which to
+        stop compilation, defaults to None. A value of 1.0 implies an exact
+        compilation. If None, a threshold of 1.0 is used.
+        :type threshold: Optional[float], optional
+        :param max_step_count: Maximum number of steps to perform while
+        attempting to perform the approximate compilation, defaults to
+        np.iinfo(np.int32).max. Compilation will terminate after this number
+        of steps regardless of whether the threshold has been reached.
+        :type max_step_count: int, optional
+        the compilation.
+        :rtype: CompilerResult
+        '''
         assert isinstance(target_unitary, Unitary)
         assert isinstance(unitary_primitive_counts, dict)
 
@@ -91,6 +170,10 @@ class Compiler:
         threshold: float,
         max_step_count: int
     ) -> CompilerResult:
+        '''
+        Internal implementation of STOQ compilation.
+        See documentation for Compiler.compile() for full details.
+        '''
         compiled_sequence = UnitarySequence(self.dimension)
         cost_by_step = []
 
@@ -119,6 +202,26 @@ class Compiler:
         unitary_primitives: List[UnitaryPrimitive],
         probabilities: Optional[List[float]] = None
     ) -> UnitarySequenceEntry:
+        '''
+        Creates and returns a randomly-generated unitary sequence entry.
+
+        :param dimension: The dimension of the state space. For an n-qubit
+        system, dimension should be set to 2**n.
+        :type dimension: int
+        :param unitary_primitives: The unitary primitives from which to
+        choose when randomly generating a sequence entry.
+        :type unitary_primitives: List[UnitaryPrimitive]
+        :param probabilities: The probability for STOQ to
+        choose each of the primitives specified in unitary_primitives when
+        proposing new gates at each step of the compilation process, defaults
+        to None. If not specified, each unitary primitive is chosen with
+        uniform probability.
+        :type probabilities: Optional[List[float]], optional
+        :return: A sequence entry specifying a randomly-chosen unitary
+        with randomly-chosen parameters and applied to a randomly-chosen
+        set of qubits.
+        :rtype: UnitarySequenceEntry
+        '''
         # choose from unitary_primitives where the allowed_apply_to list
         # is not empty
         unitary_primitives = [
@@ -157,6 +260,10 @@ class Compiler:
         threshold: float,
         max_step_count: int
     ) -> CompilerResult:
+        '''
+        Internal implementation of layered STOQ compilation.
+        See documentation for Compiler.compile_layered() for full details.
+        '''
         compiled_sequence = UnitarySequence(self.dimension)
         cost_by_step = []
 
@@ -185,6 +292,28 @@ class Compiler:
         dimension: int,
         unitary_primitive_counts: Dict[UnitaryPrimitive, int]
     ) -> List[UnitarySequenceEntry]:
+        '''
+        Creates a layer of randomly-generated unitary sequence
+        entries with the specified unitary primitive counts.
+
+        :param dimension: The dimension of the state space. For an n-qubit
+        system, dimension should be set to 2**n.
+        :type dimension: int
+        :param unitary_primitive_counts: Specifies the fixed set of unitary
+        primitives to be contained in each layer of the compilation. Each key
+        is the unitary primitive to be included, and each value is the count
+        of that unitary primitive per layer.
+        :type unitary_primitive_counts: Dict[UnitaryPrimitive, int]
+        :param threshold: The overlap with the target unitary at which to
+        stop compilation, defaults to None. A value of 1.0 implies an exact
+        compilation. If None, a threshold of 1.0 is used.
+        :type threshold: Optional[float], optional
+        :return: A randomly-ordered list of sequence entries consisting
+        of the specified counts of each unitary primitive, with each
+        given randomly-chosen parameters and applied to a randomly-chosen
+        set of qubits.
+        :rtype: List[UnitarySequenceEntry]
+        '''
         layer = []
         for primitive, count in unitary_primitive_counts.items():
             layer.extend([
@@ -197,6 +326,10 @@ class Compiler:
         self,
         compiled_sequence: UnitarySequence
     ) -> None:
+        '''
+        Chooses and implements a random change to the specified
+        unitary sequence.
+        '''
         count_append = np.count_nonzero([
             CompilerAction.is_append(action)
             for action in list(CompilerAction)])
@@ -227,6 +360,10 @@ class Compiler:
         compiled_sequence: UnitarySequence,
         unitary_primitive_counts: Dict[UnitaryPrimitive, int]
     ) -> None:
+        '''
+        Chooses and implements a random change to the specified
+        layered unitary sequence.
+        '''
         count_append = np.count_nonzero([
             CompilerAction.is_append(action)
             for action in list(CompilerAction)])
@@ -266,6 +403,10 @@ class Compiler:
         current_cost: float,
         proposed_cost: float
     ) -> bool:
+        '''
+        Determines whether to accept the proposed change, given the current
+        cost and proposed cost and current annealing parameter value beta.
+        '''
         cost_difference = proposed_cost - current_cost
         acceptance_probability = min(1.0, np.exp(-self.beta * cost_difference))
         return bool(np.random.uniform() < acceptance_probability)

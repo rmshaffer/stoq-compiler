@@ -40,9 +40,9 @@ class Verification:
 
         # Use Compiler to compile a new sequence implementing the inverse
         compiler = Compiler(
-            dimension, stoq_append_probability,
-            unitary_primitive_probabilities)
-        compiler.set_unitary_primitives(unitary_primitives)
+            dimension, stoq_append_probability)
+        compiler.set_unitary_primitives(
+            unitary_primitives, unitary_primitive_probabilities)
         result = compiler.compile(
             target_unitary, threshold, max_step_count=10000)
 
