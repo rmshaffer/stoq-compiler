@@ -79,10 +79,8 @@ class Compiler:
             for primitive in unitary_primitives])
 
         self.unitary_primitives = copy.deepcopy(unitary_primitives)
-
-        if unitary_primitive_probabilities:
-            self.unitary_primitive_probabilities = copy.deepcopy(
-                unitary_primitive_probabilities)
+        self.unitary_primitive_probabilities = copy.deepcopy(
+            unitary_primitive_probabilities)
 
     def compile(
         self,
