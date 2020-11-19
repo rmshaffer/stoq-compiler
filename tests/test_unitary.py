@@ -92,6 +92,26 @@ class TestUnitary:
         product = product.left_multiply(UnitaryDefinitions.sigmaz())
         assert product.close_to(identity)
 
+    def test_definitions(self) -> None:
+        dimension = 2
+        identity_1q = Unitary.identity(dimension)
+
+        h = UnitaryDefinitions.h()
+        assert h.left_multiply(h).close_to(identity_1q)
+
+        t = UnitaryDefinitions.t()
+        assert t.left_multiply(t).left_multiply(t).left_multiply(t).close_to(
+            UnitaryDefinitions.sigmaz())
+
+        dimension = 8
+        identity_3q = Unitary.identity(dimension)
+
+        ccnot = UnitaryDefinitions.ccnot()
+        assert ccnot.left_multiply(ccnot).close_to(identity_3q)
+
+        qecc = UnitaryDefinitions.qecc_phase_flip()
+        assert qecc.left_multiply(qecc.inverse()).close_to(identity_3q)
+
     def test_rphi(self) -> None:
         theta_values = [
             0, np.pi / 8, np.pi / 4, np.pi, 3 * np.pi / 2, -np.pi / 4]
@@ -132,11 +152,19 @@ class TestUnitary:
 
     def test_qasm(self) -> None:
         dimension = 2
-        operation_name = "Rx"
+        operation_name = "Rcustom"
         unitary = Unitary(dimension, np.array([
             [np.exp(1j * np.pi / 4), 0],
             [0, 1j]]), operation_name)
         assert unitary.get_qasm() == operation_name + "\t" + "q[0];"
+
+    def test_jaqal(self) -> None:
+        dimension = 2
+        operation_name = "Rcustom"
+        unitary = Unitary(dimension, np.array([
+            [np.exp(1j * np.pi / 4), 0],
+            [0, 1j]]), operation_name)
+        assert unitary.get_jaqal() == operation_name + " q[0] "
 
     def test_gms(self) -> None:
         for num_qubits in [3, 4, 5]:
@@ -216,6 +244,16 @@ class TestParameterizedUnitary:
 
         angle_parameter_name = xx.get_parameters()[0].get_parameter_name()
         assert (xx_angle, True) == full_rotation_unitary.get_parameter_value(
+            angle_parameter_name)
+
+        gms = ParameterizedUnitaryDefinitions.gms(num_qubits=2)
+        gms_angle = np.pi / 3
+        gms_unitary = gms.as_unitary([gms_angle])
+        assert gms_unitary.close_to(
+            ParameterizedUnitaryDefinitions.xx().as_unitary([gms_angle]))
+
+        angle_parameter_name = gms.get_parameters()[0].get_parameter_name()
+        assert (gms_angle, True) == gms_unitary.get_parameter_value(
             angle_parameter_name)
 
     def test_parameterized_unitary_time_evolution(self) -> None:
@@ -436,10 +474,11 @@ class TestUnitarySequence:
         inverse_product = inverse_sequence.product()
         assert inverse_product.close_to(product.inverse())
 
-    def test_qasm(self) -> None:
+    def test_sequence_output_formats(self) -> None:
         dimension = 2
         rx_entry = UnitarySequenceEntry(UnitaryDefinitions.rx(np.pi / 3), [0])
         ry_entry = UnitarySequenceEntry(UnitaryDefinitions.ry(np.pi / 3), [0])
         sequence = UnitarySequence(dimension, [rx_entry, ry_entry])
         assert sequence.get_qasm()
+        assert sequence.get_jaqal()
         assert sequence.get_display_output()
