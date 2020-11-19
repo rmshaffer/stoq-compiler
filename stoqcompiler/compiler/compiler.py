@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 import time
+from typing import Dict, List, Optional
 
 from stoqcompiler.unitary import (
     Unitary,
@@ -13,11 +14,15 @@ from .compiler_action import CompilerAction
 from .compiler_result import CompilerResult
 
 
-class Compiler():
+class Compiler:
 
     def __init__(
-            self, dimension, append_probability=0.5,
-            unitary_primitive_probabilities=None, annealing_rate=0.1):
+        self,
+        dimension: int,
+        append_probability: float = 0.5,
+        unitary_primitive_probabilities: Optional[List[float]] = None,
+        annealing_rate: float = 0.1
+    ):
         assert dimension > 0
         self.dimension = dimension
         self.unitary_primitives = []
@@ -27,7 +32,10 @@ class Compiler():
         self.append_probability = append_probability
         self.unitary_primitive_probabilities = unitary_primitive_probabilities
 
-    def set_unitary_primitives(self, unitary_primitives):
+    def set_unitary_primitives(
+        self,
+        unitary_primitives: List[UnitaryPrimitive]
+    ) -> None:
         assert (isinstance(unitary_primitives, list)
                 or isinstance(unitary_primitives, np.ndarray))
         assert np.all([
@@ -40,8 +48,11 @@ class Compiler():
         self.unitary_primitives = copy.deepcopy(unitary_primitives)
 
     def compile(
-            self, target_unitary, threshold=None,
-            max_step_count=np.iinfo(np.int32).max):
+        self,
+        target_unitary: Unitary,
+        threshold: Optional[float] = None,
+        max_step_count: int = np.iinfo(np.int32).max
+    ) -> CompilerResult:
         assert isinstance(target_unitary, Unitary)
         assert self.unitary_primitives
 
@@ -55,8 +66,12 @@ class Compiler():
         return result
 
     def compile_layered(
-            self, target_unitary, unitary_primitive_counts,
-            threshold=None, max_step_count=np.iinfo(np.int32).max):
+        self,
+        target_unitary: Unitary,
+        unitary_primitive_counts: Dict[UnitaryPrimitive, int],
+        threshold: Optional[float] = None,
+        max_step_count: int = np.iinfo(np.int32).max
+    ) -> CompilerResult:
         assert isinstance(target_unitary, Unitary)
         assert isinstance(unitary_primitive_counts, dict)
 
@@ -70,7 +85,12 @@ class Compiler():
             compiled_sequence, cost_by_step, total_elapsed_time)
         return result
 
-    def _compile(self, target_unitary, threshold, max_step_count):
+    def _compile(
+        self,
+        target_unitary: Unitary,
+        threshold: float,
+        max_step_count: int
+    ) -> CompilerResult:
         compiled_sequence = UnitarySequence(self.dimension)
         cost_by_step = []
 
@@ -95,7 +115,10 @@ class Compiler():
 
     @staticmethod
     def create_random_sequence_entry(
-            dimension, unitary_primitives, probabilities=None):
+        dimension: int,
+        unitary_primitives: List[UnitaryPrimitive],
+        probabilities: Optional[List[float]] = None
+    ) -> UnitarySequenceEntry:
         # choose from unitary_primitives where the allowed_apply_to list
         # is not empty
         unitary_primitives = [
@@ -128,8 +151,12 @@ class Compiler():
         return UnitarySequenceEntry(new_unitary, apply_to)
 
     def _compile_layered(
-            self, target_unitary, unitary_primitive_counts,
-            threshold, max_step_count):
+        self,
+        target_unitary: Unitary,
+        unitary_primitive_counts: Dict[UnitaryPrimitive, int],
+        threshold: float,
+        max_step_count: int
+    ) -> CompilerResult:
         compiled_sequence = UnitarySequence(self.dimension)
         cost_by_step = []
 
@@ -154,7 +181,10 @@ class Compiler():
         return compiled_sequence, cost_by_step
 
     @staticmethod
-    def create_random_layer(dimension, unitary_primitive_counts):
+    def create_random_layer(
+        dimension: int,
+        unitary_primitive_counts: Dict[UnitaryPrimitive, int]
+    ) -> List[UnitarySequenceEntry]:
         layer = []
         for primitive, count in unitary_primitive_counts.items():
             layer.extend([
@@ -163,7 +193,10 @@ class Compiler():
         np.random.shuffle(layer)
         return layer
 
-    def _make_random_change(self, compiled_sequence):
+    def _make_random_change(
+        self,
+        compiled_sequence: UnitarySequence
+    ) -> None:
         count_append = np.count_nonzero([
             CompilerAction.is_append(action)
             for action in list(CompilerAction)])
@@ -190,7 +223,10 @@ class Compiler():
             compiled_sequence.remove_last()
 
     def _make_random_change_layered(
-            self, compiled_sequence, unitary_primitive_counts):
+        self,
+        compiled_sequence: UnitarySequence,
+        unitary_primitive_counts: Dict[UnitaryPrimitive, int]
+    ) -> None:
         count_append = np.count_nonzero([
             CompilerAction.is_append(action)
             for action in list(CompilerAction)])
@@ -225,7 +261,11 @@ class Compiler():
                 compiled_sequence.remove_last(save_undo=(i == 0))
 
     def _accept_proposed_change(
-            self, target_unitary, current_cost, proposed_cost):
+        self,
+        target_unitary: Unitary,
+        current_cost: float,
+        proposed_cost: float
+    ) -> bool:
         cost_difference = proposed_cost - current_cost
         acceptance_probability = min(1.0, np.exp(-self.beta * cost_difference))
         return bool(np.random.uniform() < acceptance_probability)

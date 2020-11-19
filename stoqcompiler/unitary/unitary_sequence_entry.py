@@ -1,12 +1,16 @@
 import numpy as np
 import scipy.sparse
+from typing import List
 
 from .unitary import Unitary
 
 
 class UnitarySequenceEntry:
-
-    def __init__(self, unitary, apply_to):
+    def __init__(
+        self,
+        unitary: Unitary,
+        apply_to: List[int]
+    ):
         apply_to = list(apply_to)
         assert len(apply_to) == len(set(apply_to))
         assert 2**len(apply_to) == unitary.get_dimension()
@@ -16,21 +20,27 @@ class UnitarySequenceEntry:
         self.apply_to = apply_to
         self.full_unitary_by_dimension = {}
 
-    def get_dimension(self):
+    def get_dimension(self) -> int:
         return self.unitary.get_dimension()
 
-    def get_apply_to(self):
+    def get_apply_to(self) -> List[int]:
         return self.apply_to
 
-    def get_permute_matrix(self, system_dimension):
+    def get_permute_matrix(
+        self,
+        system_dimension: int
+    ) -> np.ndarray:
         """
         Function returning permute matrix for given system dimension.
         Adapted from qutip.permute._permute()
         """
         assert system_dimension >= self.get_dimension()
-        assert system_dimension >= 2**(np.max(self.get_apply_to())+1)
+        assert system_dimension >= 2**(np.max(self.get_apply_to()) + 1)
 
-        def _select(sel, dims):
+        def _select(
+            sel: List[int],
+            dims: List[int]
+        ) -> np.ndarray:
             """
             Private function finding selected components
             Copied from qutip.ptrace._select()
@@ -47,7 +57,10 @@ class UnitarySequenceEntry:
                     dims[sel[k]]) + 1
             return ilist
 
-        def _perm_inds(dims, order):
+        def _perm_inds(
+            dims: List[int],
+            order: List[int]
+        ) -> np.ndarray:
             """
             Private function giving permuted indices for permute function.
             Copied from qutip.permute._perm_inds()
@@ -83,7 +96,10 @@ class UnitarySequenceEntry:
 
         return permute_matrix
 
-    def get_full_unitary(self, system_dimension):
+    def get_full_unitary(
+        self,
+        system_dimension: int
+    ) -> Unitary:
         assert system_dimension >= self.get_dimension()
 
         if system_dimension not in self.full_unitary_by_dimension:

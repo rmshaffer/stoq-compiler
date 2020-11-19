@@ -1,16 +1,20 @@
 import numpy as np
+from typing import Dict, List, Optional
 
 from stoqcompiler.unitary import UnitaryPrimitive, UnitarySequence
-from stoqcompiler.compiler import Compiler
+from stoqcompiler.compiler import Compiler, CompilerResult
 
 
 class Verification:
-
     @staticmethod
     def generate_rav_sequence(
-            dimension, unitary_primitives, sequence_length,
-            threshold, stoq_append_probability=0.5,
-            unitary_primitive_probabilities=None):
+        dimension: int,
+        unitary_primitives: List[UnitaryPrimitive],
+        sequence_length: int,
+        threshold: float,
+        stoq_append_probability: float = 0.5,
+        unitary_primitive_probabilities: Optional[List[float]] = None
+    ) -> CompilerResult:
         # Randomized analog verification (RAV) as per Shaffer et al.,
         # arXiv:2003.04500 (2020)
         assert (isinstance(unitary_primitives, list)
@@ -49,8 +53,13 @@ class Verification:
 
     @staticmethod
     def generate_layered_rav_sequence(
-            dimension, unitary_primitive_counts, layer_count,
-            threshold, stoq_append_probability=0.5, max_step_count=10000):
+        dimension: int,
+        unitary_primitive_counts: Dict[UnitaryPrimitive, int],
+        layer_count: int,
+        threshold: float,
+        stoq_append_probability: float = 0.5,
+        max_step_count: int = 10000
+    ) -> CompilerResult:
         # Layered randomized analog verification (RAV) sequences
         # unitary_primitive_counts is a dictionary mapping each unitary
         # primitive to its count per layer

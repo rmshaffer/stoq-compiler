@@ -9,26 +9,25 @@ qubit_dimension = 2
 
 
 class TestHamiltonian:
-
-    def test_no_terms(self):
+    def test_no_terms(self) -> None:
         terms = None
         with pytest.raises(Exception):
             Hamiltonian(terms)
 
-    def test_terms_mismatched_dimension(self):
+    def test_terms_mismatched_dimension(self) -> None:
         term1 = HamiltonianTerm(np.array([
-            [3, 2+1j],
-            [2-1j, 3]]))
+            [3, 2 + 1j],
+            [2 - 1j, 3]]))
         term2 = HamiltonianTerm(np.array([
-            [3, 2+1j, 0, 0],
-            [2-1j, 0, 0, 0],
+            [3, 2 + 1j, 0, 0],
+            [2 - 1j, 0, 0, 0],
             [0, 0, 0, 0],
             [0, 0, 0, 3]]))
         with pytest.raises(Exception):
             Hamiltonian([term1, term2])
 
-    def test_simple_terms(self):
-        term = HamiltonianTerm(np.array([[3, 2+1j], [2-1j, 3]]))
+    def test_simple_terms(self) -> None:
+        term = HamiltonianTerm(np.array([[3, 2 + 1j], [2 - 1j, 3]]))
         identity = Unitary.identity(term.get_dimension())
 
         h_2terms = Hamiltonian([term, term])
@@ -41,12 +40,12 @@ class TestHamiltonian:
         assert u.close_to(identity)
 
         time = 1.234
-        u_2terms = h_2terms.get_time_evolution_operator(3*time)
-        u_3terms = h_3terms.get_time_evolution_operator(2*time)
+        u_2terms = h_2terms.get_time_evolution_operator(3 * time)
+        u_3terms = h_3terms.get_time_evolution_operator(2 * time)
         assert not u_2terms.close_to(identity)
         assert u_2terms.close_to(u_3terms)
 
-    def test_ideal_sequence(self):
+    def test_ideal_sequence(self) -> None:
         sigmax = np.array([[0, 1], [1, 0]])
         sigmay = np.array([[0, -1j], [1j, 0]])
         x_term = HamiltonianTerm(2 * sigmax)
@@ -65,7 +64,7 @@ class TestHamiltonian:
         assert u.close_to(ideal_sequence.product()), \
             u.distance_from(ideal_sequence.product())
 
-    def test_trotterization(self):
+    def test_trotterization(self) -> None:
         sigmax = np.array([[0, 1], [1, 0]])
         sigmay = np.array([[0, -1j], [1j, 0]])
         x_term = HamiltonianTerm(2 * sigmax)
@@ -94,7 +93,7 @@ class TestHamiltonian:
         assert not trotter_sequence.product().close_to(
             randomized_trotter_sequence.product())
 
-    def test_qdrift(self):
+    def test_qdrift(self) -> None:
         sigmax = np.array([[0, 1], [1, 0]])
         sigmay = np.array([[0, -1j], [1j, 0]])
         x_term = HamiltonianTerm(10 * sigmax)
@@ -113,7 +112,7 @@ class TestHamiltonian:
         assert u.close_to(qdrift_sequence.product(), 0.95), \
             u.distance_from(qdrift_sequence.product())
 
-    def test_stoq(self):
+    def test_stoq(self) -> None:
         sigmax = np.array([[0, 1], [1, 0]])
         sigmay = np.array([[0, -1j], [1j, 0]])
         x_term = HamiltonianTerm(2 * sigmax)
@@ -142,7 +141,7 @@ class TestHamiltonian:
             u.distance_from(stoq_compiler_result.compiled_sequence.product())
         assert stoq_compiler_result.compiled_sequence.get_qasm()
 
-    def test_rav(self):
+    def test_rav(self) -> None:
         sigmax = np.array([[0, 1], [1, 0]])
         sigmay = np.array([[0, -1j], [1j, 0]])
         x_term = HamiltonianTerm(2 * sigmax)
@@ -164,7 +163,7 @@ class TestHamiltonian:
             product.distance_from(Unitary.identity(h.get_dimension()))
         assert rav_result.compiled_sequence.get_qasm()
 
-    def test_two_qubits(self):
+    def test_two_qubits(self) -> None:
         sigmax = np.array([[0, 1], [1, 0]])
         sigmay = np.array([[0, -1j], [1j, 0]])
         xx = np.kron(sigmax, sigmax)
@@ -209,18 +208,18 @@ class TestHamiltonian:
 
 class TestHamiltonianTerm:
 
-    def test_no_matrix(self):
+    def test_no_matrix(self) -> None:
         matrix = None
         with pytest.raises(Exception):
             HamiltonianTerm(matrix)
 
-    def test_non_hermitian_matrix(self):
+    def test_non_hermitian_matrix(self) -> None:
         matrix = np.array([[1, 0], [1, 1]])
         with pytest.raises(Exception):
             HamiltonianTerm(matrix)
 
-    def test_simple_hermitian_matrix(self):
-        matrix = np.array([[3, 2+1j], [2-1j, 3]])
+    def test_simple_hermitian_matrix(self) -> None:
+        matrix = np.array([[3, 2 + 1j], [2 - 1j, 3]])
         term = HamiltonianTerm(matrix)
         assert term.get_dimension() == matrix.shape[0]
 

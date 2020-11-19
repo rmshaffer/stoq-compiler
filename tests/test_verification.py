@@ -10,7 +10,7 @@ qubit_dimension = 2
 
 class TestVerification:
 
-    def test_rav(self):
+    def test_rav(self) -> None:
         num_system_qubits = 2
         system_dimension = qubit_dimension ** num_system_qubits
         unitary_primitives = [
@@ -30,7 +30,7 @@ class TestVerification:
         assert rav_result.compiled_sequence.get_qasm()
         assert rav_result.compiled_sequence.get_jaqal()
 
-    def test_layered_rav(self):
+    def test_layered_rav(self) -> None:
         num_system_qubits = 2
         system_dimension = qubit_dimension ** num_system_qubits
         unitary_primitive_counts = {
@@ -47,7 +47,7 @@ class TestVerification:
         layer_length = sum(unitary_primitive_counts.values())
         assert len(
             layered_rav_result.compiled_sequence.get_sequence_entries()
-            ) % layer_length == 0
+        ) % layer_length == 0
 
         product = layered_rav_result.compiled_sequence.product()
         assert product.close_to(

@@ -2,8 +2,10 @@ import numpy as np
 
 
 class HamiltonianTerm:
-
-    def __init__(self, matrix):
+    def __init__(
+        self,
+        matrix: np.ndarray
+    ):
         assert isinstance(matrix, np.ndarray)
         matrix = matrix.astype(np.complex128)
 
@@ -27,14 +29,14 @@ class HamiltonianTerm:
         # validate that we did the normalization correctly
         assert np.allclose(matrix, self.get_matrix())
 
-    def get_dimension(self):
+    def get_dimension(self) -> int:
         return self.dimension
 
-    def get_matrix(self):
+    def get_matrix(self) -> np.ndarray:
         return self.coefficient * self.normalized_matrix
 
-    def get_coefficient(self):
+    def get_coefficient(self) -> float:
         return self.coefficient
 
-    def get_normalized_matrix(self):
+    def get_normalized_matrix(self) -> np.ndarray:
         return self.normalized_matrix
