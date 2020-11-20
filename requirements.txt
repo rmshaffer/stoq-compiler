@@ -2,3 +2,5 @@ numpy
 scipy
 pytest
 pytest-cov
+flake8
+flake8-annotations
