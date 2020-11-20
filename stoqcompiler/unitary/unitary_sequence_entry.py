@@ -63,7 +63,7 @@ class UnitarySequenceEntry:
         Adapted from qutip.permute._permute().
 
         :param system_dimension: The dimension of the state space
-        of the system.
+            of the system.
         :type system_dimension: int
         :return: The permute matrix.
         :rtype: np.ndarray
@@ -140,7 +140,7 @@ class UnitarySequenceEntry:
         subset of qubits.
 
         :param system_dimension: The dimension of the state space
-        of the system.
+            of the system.
         :type system_dimension: int
         :return: The unitary operator acting on the full system.
         :rtype: Unitary

@@ -146,13 +146,13 @@ class ParameterizedUnitaryDefinitions:
         :param h_matrix: The Hamiltonian matrix to use for time evolution.
         :type h_matrix: np.ndarray
         :param t_min: The minimum allowed value for the time evolution
-        parameter. This may be negative if time-reversal is allowed.
+            parameter. This may be negative if time-reversal is allowed.
         :type t_min: float
         :param t_max: The maximum allowed value for the time evolution
-        parameter.
+            parameter.
         :type t_max: float
         :param h_suffix: A suffix used for display purposes to identify this
-        Hamiltonian, defaults to "".
+            Hamiltonian, defaults to "".
         :type h_suffix: str, optional
         :return: The parameterized unitary object.
         :rtype: ParameterizedUnitary

@@ -23,8 +23,8 @@ class UnitaryPrimitive:
         :param unitary: The unitary operation.
         :type unitary: Unitary
         :param allowed_apply_to: All lists of qubits to which this
-        operation is allowed to be applied, defaults to None.
-        If not specified, all qubits are assumed to be allowed.
+            operation is allowed to be applied, defaults to None.
+            If not specified, all qubits are assumed to be allowed.
         :type allowed_apply_to: Optional[List[List[int]]], optional
         '''
         if allowed_apply_to is not None:
@@ -58,7 +58,7 @@ class UnitaryPrimitive:
         are assumed to be allowed.
 
         :return: All lists of qubits to which this operation is allowed
-        to be applied.
+            to be applied.
         :rtype: Optional[List[List[int]]]
         '''
         return self.allowed_apply_to

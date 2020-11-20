@@ -16,7 +16,7 @@ class HamiltonianTerm:
         Creates a HamiltonianTerm object from the specified matrix.
 
         :param matrix: The square Hermitian matrix representing the
-        action of the Hamiltonian term.
+            action of the Hamiltonian term.
         :type matrix: np.ndarray
         '''
         assert isinstance(matrix, np.ndarray)
@@ -57,7 +57,7 @@ class HamiltonianTerm:
         Gets the matrix representing the action of the Hamiltonian term.
 
         :return: The square Hermitian matrix representing the action of
-        the Hamiltonian term.
+            the Hamiltonian term.
         :rtype: np.ndarray
         '''
         return self.coefficient * self.normalized_matrix
