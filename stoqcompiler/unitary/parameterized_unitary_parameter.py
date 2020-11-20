@@ -7,6 +7,15 @@ import numpy as np
 class ParameterizedUnitaryParameter:
     '''
     Represents an individual parameter for a parameterized unitary.
+
+    :param parameter_name: The name of the parameter.
+    :type parameter_name: str
+    :param min_value: The minimum allowed value of the parameter.
+    :type min_value: float
+    :param max_value: The maximum allowed value of the parameter.
+    :type max_value: float
+    :param is_angle: Whether the parameter represents an angle.
+    :type is_angle: bool
     '''
 
     def __init__(
@@ -18,15 +27,6 @@ class ParameterizedUnitaryParameter:
     ):
         '''
         Creates a ParameterizedUnitaryParameter object.
-
-        :param parameter_name: The name of the parameter.
-        :type parameter_name: str
-        :param min_value: The minimum allowed value of the parameter.
-        :type min_value: float
-        :param max_value: The maximum allowed value of the parameter.
-        :type max_value: float
-        :param is_angle: Whether the parameter represents an angle.
-        :type is_angle: bool
         '''
         assert parameter_name
         assert max_value >= min_value

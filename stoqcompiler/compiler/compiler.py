@@ -20,6 +20,16 @@ from .compiler_result import CompilerResult
 class Compiler:
     '''
     Implements the STOQ compilation technique.
+
+    :param dimension: The dimension of the state space. For an n-qubit
+        system, dimension should be set to 2**n.
+    :type dimension: int
+    :param append_probability: Probability of appending a new gate at each
+        step in the compilation, defaults to 0.5.
+    :type append_probability: float, optional
+    :param annealing_rate: Rate at which MCMC annealing occurs during the
+        compilation process, defaults to 0.1.
+    :type annealing_rate: float, optional
     '''
 
     def __init__(
@@ -30,16 +40,6 @@ class Compiler:
     ):
         '''
         Creates a Compiler object.
-
-        :param dimension: The dimension of the state space. For an n-qubit
-            system, dimension should be set to 2**n.
-        :type dimension: int
-        :param append_probability: Probability of appending a new gate at each
-            step in the compilation, defaults to 0.5.
-        :type append_probability: float, optional
-        :param annealing_rate: Rate at which MCMC annealing occurs during the
-            compilation process, defaults to 0.1.
-        :type annealing_rate: float, optional
         '''
         assert dimension > 0
         self.dimension = dimension

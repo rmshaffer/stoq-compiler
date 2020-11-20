@@ -12,6 +12,11 @@ class UnitarySequenceEntry:
     '''
     Represents an entry in a unitary sequence applied to
     a specific subset of qubits in a system.
+
+    :param unitary: The unitary operation to be applied.
+    :type unitary: Unitary
+    :param apply_to: The qubits to which the operation is applied.
+    :type apply_to: List[int]
     '''
     def __init__(
         self,
@@ -20,11 +25,6 @@ class UnitarySequenceEntry:
     ):
         '''
         Creates a UnitarySequenceEntry object.
-
-        :param unitary: The unitary operation to be applied.
-        :type unitary: Unitary
-        :param apply_to: The qubits to which the operation is applied.
-        :type apply_to: List[int]
         '''
         apply_to = list(apply_to)
         assert len(apply_to) == len(set(apply_to))

@@ -13,6 +13,13 @@ class UnitarySequence:
     '''
     Represents a sequence of unitaries applied to specific qubits
     in a system.
+
+    :param dimension: The dimension of the state space. For an n-qubit
+        system, dimension should be set to 2**n.
+    :type dimension: int
+    :param sequence_entries: The entries of the unitary sequence,
+        defaults to [].
+    :type sequence_entries: List[UnitarySequenceEntry], optional
     '''
     def __init__(
         self,
@@ -21,13 +28,6 @@ class UnitarySequence:
     ):
         '''
         Creates a UnitarySequence object.
-
-        :param dimension: The dimension of the state space. For an n-qubit
-            system, dimension should be set to 2**n.
-        :type dimension: int
-        :param sequence_entries: The entries of the unitary sequence,
-            defaults to [].
-        :type sequence_entries: List[UnitarySequenceEntry], optional
         '''
         self.dimension = dimension
 

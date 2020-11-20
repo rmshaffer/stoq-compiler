@@ -22,6 +22,11 @@ from .hamiltonian_term import HamiltonianTerm
 class Hamiltonian:
     '''
     Defines a Hamiltonian from a set of HamiltonianTerm objects.
+
+    :param terms: The list of Hamiltonian terms that make up this
+        Hamiltonian. The list must be non-empty and all terms must
+        have the same dimension.
+    :type terms: List[HamiltonianTerm]
     '''
     def __init__(
         self,
@@ -29,11 +34,6 @@ class Hamiltonian:
     ):
         '''
         Creates a Hamiltonian object.
-
-        :param terms: The list of Hamiltonian terms that make up this
-            Hamiltonian. The list must be non-empty and all terms must
-            have the same dimension.
-        :type terms: List[HamiltonianTerm]
         '''
         assert isinstance(terms, list)
         assert len(terms) > 0

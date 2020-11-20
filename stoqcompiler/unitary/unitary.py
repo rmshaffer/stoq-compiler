@@ -9,6 +9,27 @@ from typing import Dict, List, Optional, Tuple
 class Unitary:
     '''
     Represents a unitary operation.
+
+    :param dimension: The dimension of the state space. For an n-qubit
+        unitary, dimension should be set to 2**n.
+    :type dimension: int
+    :param matrix: The unitary matrix representing this operation,
+        defaults to None. If not specified, an identity matrix is used.
+    :type matrix: Optional[np.ndarray], optional
+    :param operation_name: The display name associated with this
+        unitary operation.
+    :type operation_name: str
+    :param parameter_dict: The display parameters associated with this
+        unitary operation, as a dictionary mapping the parameter name
+        to its parameter value and whether it is an angle, defaults
+        to None.
+    :type parameter_dict: Optional[Dict[str, Tuple[float, bool]]], optional
+    :param is_inverse: Whether to display this unitary as an inverse,
+        defaults to False.
+    :type is_inverse: bool, optional
+    :param apply_to: The qubits to which this unitary is applied,
+        defaults to [].
+    :type apply_to: List[int], optional
     '''
     def __init__(
         self,
@@ -21,27 +42,6 @@ class Unitary:
     ):
         '''
         Creates a Unitary object.
-
-        :param dimension: The dimension of the state space. For an n-qubit
-            unitary, dimension should be set to 2**n.
-        :type dimension: int
-        :param matrix: The unitary matrix representing this operation,
-            defaults to None. If not specified, an identity matrix is used.
-        :type matrix: Optional[np.ndarray], optional
-        :param operation_name: The display name associated with this
-            unitary operation.
-        :type operation_name: str
-        :param parameter_dict: The display parameters associated with this
-            unitary operation, as a dictionary mapping the parameter name
-            to its parameter value and whether it is an angle, defaults
-            to None.
-        :type parameter_dict: Optional[Dict[str, Tuple[float, bool]]], optional
-        :param is_inverse: Whether to display this unitary as an inverse,
-            defaults to False.
-        :type is_inverse: bool, optional
-        :param apply_to: The qubits to which this unitary is applied,
-            defaults to [].
-        :type apply_to: List[int], optional
         '''
         assert dimension > 0
 

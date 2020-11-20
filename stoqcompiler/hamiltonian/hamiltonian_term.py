@@ -7,6 +7,10 @@ import numpy as np
 class HamiltonianTerm:
     '''
     Defines a single term of a Hamiltonian.
+
+    :param matrix: The square Hermitian matrix representing the
+        action of the Hamiltonian term.
+    :type matrix: np.ndarray
     '''
     def __init__(
         self,
@@ -14,10 +18,6 @@ class HamiltonianTerm:
     ):
         '''
         Creates a HamiltonianTerm object from the specified matrix.
-
-        :param matrix: The square Hermitian matrix representing the
-            action of the Hamiltonian term.
-        :type matrix: np.ndarray
         '''
         assert isinstance(matrix, np.ndarray)
         matrix = matrix.astype(np.complex128)
