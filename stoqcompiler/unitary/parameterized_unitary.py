@@ -11,6 +11,20 @@ from .unitary import Unitary
 class ParameterizedUnitary:
     '''
     Represents a unitary parameterized by one or more parameters.
+
+    :param dimension: The dimension of the state space. For an n-qubit
+        unitary, dimension should be set to 2**n.
+    :type dimension: int
+    :param parameterized_matrix: A function that takes in the
+        parameter values for this unitary and returns the matrix value when
+        those parameter values are applied.
+    :type parameterized_matrix: Callable[..., np.ndarray]
+    :param parameters: The parameters with which this unitary is
+        parameterized.
+    :type parameters: List[ParameterizedUnitaryParameter]
+    :param operation_name: The display name associated with this
+        unitary operation.
+    :type operation_name: str
     '''
     def __init__(
         self,
@@ -21,20 +35,6 @@ class ParameterizedUnitary:
     ):
         '''
         Creates a ParameterizedUnitary object.
-
-        :param dimension: The dimension of the state space. For an n-qubit
-        unitary, dimension should be set to 2**n.
-        :type dimension: int
-        :param parameterized_matrix: A function that takes in the
-        parameter values for this unitary and returns the matrix value when
-        those parameter values are applied.
-        :type parameterized_matrix: Callable[..., np.ndarray]
-        :param parameters: The parameters with which this unitary is
-        parameterized.
-        :type parameters: List[ParameterizedUnitaryParameter]
-        :param operation_name: The display name associated with this
-        unitary operation.
-        :type operation_name: str
         '''
         assert dimension > 0
         assert callable(parameterized_matrix)

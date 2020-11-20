@@ -12,6 +12,11 @@ class UnitarySequenceEntry:
     '''
     Represents an entry in a unitary sequence applied to
     a specific subset of qubits in a system.
+
+    :param unitary: The unitary operation to be applied.
+    :type unitary: Unitary
+    :param apply_to: The qubits to which the operation is applied.
+    :type apply_to: List[int]
     '''
     def __init__(
         self,
@@ -20,11 +25,6 @@ class UnitarySequenceEntry:
     ):
         '''
         Creates a UnitarySequenceEntry object.
-
-        :param unitary: The unitary operation to be applied.
-        :type unitary: Unitary
-        :param apply_to: The qubits to which the operation is applied.
-        :type apply_to: List[int]
         '''
         apply_to = list(apply_to)
         assert len(apply_to) == len(set(apply_to))
@@ -63,7 +63,7 @@ class UnitarySequenceEntry:
         Adapted from qutip.permute._permute().
 
         :param system_dimension: The dimension of the state space
-        of the system.
+            of the system.
         :type system_dimension: int
         :return: The permute matrix.
         :rtype: np.ndarray
@@ -140,7 +140,7 @@ class UnitarySequenceEntry:
         subset of qubits.
 
         :param system_dimension: The dimension of the state space
-        of the system.
+            of the system.
         :type system_dimension: int
         :return: The unitary operator acting on the full system.
         :rtype: Unitary

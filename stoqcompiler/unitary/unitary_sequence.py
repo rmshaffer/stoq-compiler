@@ -13,6 +13,13 @@ class UnitarySequence:
     '''
     Represents a sequence of unitaries applied to specific qubits
     in a system.
+
+    :param dimension: The dimension of the state space. For an n-qubit
+        system, dimension should be set to 2**n.
+    :type dimension: int
+    :param sequence_entries: The entries of the unitary sequence,
+        defaults to [].
+    :type sequence_entries: List[UnitarySequenceEntry], optional
     '''
     def __init__(
         self,
@@ -21,13 +28,6 @@ class UnitarySequence:
     ):
         '''
         Creates a UnitarySequence object.
-
-        :param dimension: The dimension of the state space. For an n-qubit
-        system, dimension should be set to 2**n.
-        :type dimension: int
-        :param sequence_entries: The entries of the unitary sequence,
-        defaults to [].
-        :type sequence_entries: List[UnitarySequenceEntry], optional
         '''
         self.dimension = dimension
 
@@ -51,8 +51,8 @@ class UnitarySequence:
 
         :param this_class: The first unitary sequence.
         :type this_class: UnitarySequence
-        :param *sequences: The remanining unitary sequences.
-        :type *sequences: UnitarySequence
+        :param sequences: The remanining unitary sequences.
+        :type sequences: UnitarySequence
         :return: The concatenation of the sequences.
         :rtype: UnitarySequence
         '''
@@ -138,7 +138,7 @@ class UnitarySequence:
         :param sequence_entry: The sequence entry to append.
         :type sequence_entry: UnitarySequenceEntry
         :param save_undo: Whether to save the state prior to append as
-        the undo state, defaults to True.
+            the undo state, defaults to True.
         :type save_undo: bool, optional
         '''
         self._assert_is_entry_valid(sequence_entry)
@@ -162,7 +162,7 @@ class UnitarySequence:
         :param sequence_entry: The sequence entry to append.
         :type sequence_entry: UnitarySequenceEntry
         :param save_undo: Whether to save the state prior to append as
-        the undo state, defaults to True.
+            the undo state, defaults to True.
         :type save_undo: bool, optional
         '''
         self._assert_is_entry_valid(sequence_entry)
@@ -183,7 +183,7 @@ class UnitarySequence:
         Removes the first sequence entry from this sequence.
 
         :param save_undo: Whether to save the state prior to remove as
-        the undo state, defaults to True.
+            the undo state, defaults to True.
         :type save_undo: bool, optional
         '''
         if self.get_length() > 0:
@@ -203,7 +203,7 @@ class UnitarySequence:
         Removes the last sequence entry from this sequence.
 
         :param save_undo: Whether to save the state prior to remove as
-        the undo state, defaults to True.
+            the undo state, defaults to True.
         :type save_undo: bool, optional
         '''
         if self.get_length() > 0:

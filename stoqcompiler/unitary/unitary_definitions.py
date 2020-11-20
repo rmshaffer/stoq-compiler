@@ -270,10 +270,10 @@ class UnitaryDefinitions:
         :param h_matrix: The Hamiltonian matrix to use for time evolution.
         :type h_matrix: np.ndarray
         :param t: The time for which to perform the time evolution.
-        This may be negative if time-reversal is allowed.
+            This may be negative if time-reversal is allowed.
         :type t: float
         :param h_suffix: A suffix used for display purposes to identify this
-        Hamiltonian, defaults to "".
+            Hamiltonian, defaults to "".
         :type h_suffix: str, optional
         :return: [description]
         :rtype: Unitary

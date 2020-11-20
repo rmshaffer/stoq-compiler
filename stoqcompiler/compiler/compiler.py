@@ -20,6 +20,16 @@ from .compiler_result import CompilerResult
 class Compiler:
     '''
     Implements the STOQ compilation technique.
+
+    :param dimension: The dimension of the state space. For an n-qubit
+        system, dimension should be set to 2**n.
+    :type dimension: int
+    :param append_probability: Probability of appending a new gate at each
+        step in the compilation, defaults to 0.5.
+    :type append_probability: float, optional
+    :param annealing_rate: Rate at which MCMC annealing occurs during the
+        compilation process, defaults to 0.1.
+    :type annealing_rate: float, optional
     '''
 
     def __init__(
@@ -30,16 +40,6 @@ class Compiler:
     ):
         '''
         Creates a Compiler object.
-
-        :param dimension: The dimension of the state space. For an n-qubit
-        system, dimension should be set to 2**n.
-        :type dimension: int
-        :param append_probability: Probability of appending a new gate at each
-        step in the compilation, defaults to 0.5.
-        :type append_probability: float, optional
-        :param annealing_rate: Rate at which MCMC annealing occurs during the
-        compilation process, defaults to 0.1.
-        :type annealing_rate: float, optional
         '''
         assert dimension > 0
         self.dimension = dimension
@@ -60,13 +60,13 @@ class Compiler:
         use in the STOQ compilation process.
 
         :param unitary_primitives: The unitary primitives to be used for
-        the compilation.
+            the compilation.
         :type unitary_primitives: List[UnitaryPrimitive]
         :param unitary_primitive_probabilities: The probability for STOQ to
-        choose each of the primitives specified in unitary_primitives when
-        proposing new gates at each step of the compilation process, defaults
-        to None. If not specified, each unitary primitive is chosen with
-        uniform probability.
+            choose each of the primitives specified in unitary_primitives when
+            proposing new gates at each step of the compilation process,
+            defaults to None. If not specified, each unitary primitive is
+            chosen with uniform probability.
         :type unitary_primitive_probabilities: Optional[List[float]], optional
         '''
         assert (isinstance(unitary_primitives, list)
@@ -95,16 +95,17 @@ class Compiler:
         :param target_unitary: The target unitary to be compiled.
         :type target_unitary: Unitary
         :param threshold: The overlap with the target unitary at which to
-        stop compilation, defaults to None. A value of 1.0 implies an exact
-        compilation. If None, a threshold of 1.0 is used.
+            stop compilation, defaults to None. A value of 1.0 implies an exact
+            compilation. If None, a threshold of 1.0 is used.
         :type threshold: Optional[float], optional
         :param max_step_count: Maximum number of steps to perform while
-        attempting to perform the approximate compilation, defaults to
-        np.iinfo(np.int32).max. Compilation will terminate after this number
-        of steps regardless of whether the threshold has been reached.
+            attempting to perform the approximate compilation, defaults to
+            np.iinfo(np.int32).max. Compilation will terminate after this
+            number of steps regardless of whether the threshold has
+            been reached.
         :type max_step_count: int, optional
         :return: The CompilerResult object containing the output of
-        the compilation.
+            the compilation.
         :rtype: CompilerResult
         '''
         assert isinstance(target_unitary, Unitary)
@@ -133,20 +134,21 @@ class Compiler:
         :param target_unitary: The target unitary to be compiled.
         :type target_unitary: Unitary
         :param unitary_primitive_counts: Specifies the fixed set of unitary
-        primitives to be contained in each layer of the compilation. Each key
-        is the unitary primitive to be included, and each value is the count
-        of that unitary primitive per layer.
+            primitives to be contained in each layer of the compilation.
+            Each key is the unitary primitive to be included, and each value
+            is the count of that unitary primitive per layer.
         :type unitary_primitive_counts: Dict[UnitaryPrimitive, int]
         :param threshold: The overlap with the target unitary at which to
-        stop compilation, defaults to None. A value of 1.0 implies an exact
-        compilation. If None, a threshold of 1.0 is used.
+            stop compilation, defaults to None. A value of 1.0 implies an exact
+            compilation. If None, a threshold of 1.0 is used.
         :type threshold: Optional[float], optional
         :param max_step_count: Maximum number of steps to perform while
-        attempting to perform the approximate compilation, defaults to
-        np.iinfo(np.int32).max. Compilation will terminate after this number
-        of steps regardless of whether the threshold has been reached.
+            attempting to perform the approximate compilation, defaults to
+            np.iinfo(np.int32).max. Compilation will terminate after
+            this number of steps regardless of whether the threshold has
+            been reached.
         :type max_step_count: int, optional
-        the compilation.
+            the compilation.
         :rtype: CompilerResult
         '''
         assert isinstance(target_unitary, Unitary)
@@ -204,20 +206,20 @@ class Compiler:
         Creates and returns a randomly-generated unitary sequence entry.
 
         :param dimension: The dimension of the state space. For an n-qubit
-        system, dimension should be set to 2**n.
+            system, dimension should be set to 2**n.
         :type dimension: int
         :param unitary_primitives: The unitary primitives from which to
-        choose when randomly generating a sequence entry.
+            choose when randomly generating a sequence entry.
         :type unitary_primitives: List[UnitaryPrimitive]
         :param probabilities: The probability for STOQ to
-        choose each of the primitives specified in unitary_primitives when
-        proposing new gates at each step of the compilation process, defaults
-        to None. If not specified, each unitary primitive is chosen with
-        uniform probability.
+            choose each of the primitives specified in unitary_primitives when
+            proposing new gates at each step of the compilation process,
+            defaults to None. If not specified, each unitary primitive is
+            chosen with uniform probability.
         :type probabilities: Optional[List[float]], optional
         :return: A sequence entry specifying a randomly-chosen unitary
-        with randomly-chosen parameters and applied to a randomly-chosen
-        set of qubits.
+            with randomly-chosen parameters and applied to a randomly-chosen
+            set of qubits.
         :rtype: UnitarySequenceEntry
         '''
         # choose from unitary_primitives where the allowed_apply_to list
@@ -295,21 +297,21 @@ class Compiler:
         entries with the specified unitary primitive counts.
 
         :param dimension: The dimension of the state space. For an n-qubit
-        system, dimension should be set to 2**n.
+            system, dimension should be set to 2**n.
         :type dimension: int
         :param unitary_primitive_counts: Specifies the fixed set of unitary
-        primitives to be contained in each layer of the compilation. Each key
-        is the unitary primitive to be included, and each value is the count
-        of that unitary primitive per layer.
+            primitives to be contained in each layer of the compilation.
+            Each key is the unitary primitive to be included, and each value
+            is the count of that unitary primitive per layer.
         :type unitary_primitive_counts: Dict[UnitaryPrimitive, int]
         :param threshold: The overlap with the target unitary at which to
-        stop compilation, defaults to None. A value of 1.0 implies an exact
-        compilation. If None, a threshold of 1.0 is used.
+            stop compilation, defaults to None. A value of 1.0 implies an exact
+            compilation. If None, a threshold of 1.0 is used.
         :type threshold: Optional[float], optional
         :return: A randomly-ordered list of sequence entries consisting
-        of the specified counts of each unitary primitive, with each
-        given randomly-chosen parameters and applied to a randomly-chosen
-        set of qubits.
+            of the specified counts of each unitary primitive, with each
+            given randomly-chosen parameters and applied to a randomly-chosen
+            set of qubits.
         :rtype: List[UnitarySequenceEntry]
         '''
         layer = []

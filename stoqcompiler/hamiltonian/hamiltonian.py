@@ -22,6 +22,11 @@ from .hamiltonian_term import HamiltonianTerm
 class Hamiltonian:
     '''
     Defines a Hamiltonian from a set of HamiltonianTerm objects.
+
+    :param terms: The list of Hamiltonian terms that make up this
+        Hamiltonian. The list must be non-empty and all terms must
+        have the same dimension.
+    :type terms: List[HamiltonianTerm]
     '''
     def __init__(
         self,
@@ -29,11 +34,6 @@ class Hamiltonian:
     ):
         '''
         Creates a Hamiltonian object.
-
-        :param terms: The list of Hamiltonian terms that make up this
-        Hamiltonian. The list must be non-empty and all terms must
-        have the same dimension.
-        :type terms: List[HamiltonianTerm]
         '''
         assert isinstance(terms, list)
         assert len(terms) > 0
@@ -96,10 +96,10 @@ class Hamiltonian:
         :param time: The total time to evolve the system.
         :type time: float
         :param num_steps: The number of steps in which to break up the
-        time evolution of the system.
+            time evolution of the system.
         :type num_steps: int
         :return: A sequence of num_steps identical unitaries implementing
-        the time evolution of the system.
+            the time evolution of the system.
         :rtype: UnitarySequence
         '''
         sequence_entries = []
@@ -128,10 +128,11 @@ class Hamiltonian:
         :param num_trotter_steps: The number of Trotter steps to use.
         :type num_trotter_steps: int
         :param randomize: Whether to randomize the order of Hamiltonian terms
-        in each step of the Suzuki-Trotter decomposition, defaults to False.
+            in each step of the Suzuki-Trotter decomposition, defaults
+            to False.
         :type randomize: bool, optional
         :return: A sequence of unitaries implementing the Suzuki-Trotter
-        decomposition of the time evolution of the system.
+            decomposition of the time evolution of the system.
         :rtype: UnitarySequence
         '''
         sequence_entries = []
@@ -167,7 +168,7 @@ class Hamiltonian:
         :type num_repetitions: int
         :return: [description]
         :return: A sequence of unitaries implementing the QDRIFT
-        decomposition of the time evolution of the system.
+            decomposition of the time evolution of the system.
         :rtype: UnitarySequence
         '''
         sequence_entries = []
@@ -202,18 +203,18 @@ class Hamiltonian:
         :param time: The total time to evolve the system.
         :type time: float
         :param max_t_step: The maximum time to use for a single Hamiltonian
-        term at each step of the sequence.
+            term at each step of the sequence.
         :type max_t_step: float
         :param threshold: The overlap with the target unitary at which to
-        stop compilation, defaults to None. A value of 1.0 implies an exact
-        compilation.
+            stop compilation, defaults to None. A value of 1.0 implies an exact
+            compilation.
         :type threshold: float
         :param allow_simultaneous_terms: Whether to allow multiple
-        Hamiltonian terms to be executed simultaneously in the resulting
-        sequence, defaults to False.
+            Hamiltonian terms to be executed simultaneously in the resulting
+            sequence, defaults to False.
         :type allow_simultaneous_terms: bool, optional
         :return: A sequence of unitaries implementing a STOQ
-        compilation of the time evolution of the system.
+            compilation of the time evolution of the system.
         :rtype: CompilerResult
         '''
         target_unitary = self.get_time_evolution_operator(time)
@@ -299,18 +300,18 @@ class Hamiltonian:
         implements the identity operation.
 
         :param time: The total time to evolve the system in the
-        initial randomly-generated sequence.
+            initial randomly-generated sequence.
         :type time: float
         :param max_t_step: The maximum time to use for a single Hamiltonian
-        term at each step of the sequence.
+            term at each step of the sequence.
         :type max_t_step: float
         :param threshold: The overlap with the target unitary at which to
-        stop the STOQ compilation, defaults to None. A value of 1.0
-        implies an exact compilation.
+            stop the STOQ compilation, defaults to None. A value of 1.0
+            implies an exact compilation.
         :type threshold: float
         :param allow_simultaneous_terms: Whether to allow multiple
-        Hamiltonian terms to be executed simultaneously in the resulting
-        sequence, defaults to False.
+            Hamiltonian terms to be executed simultaneously in the resulting
+            sequence, defaults to False.
         :type allow_simultaneous_terms: bool, optional
         :return: A sequence of unitaries implementing RAV.
         :rtype: CompilerResult
