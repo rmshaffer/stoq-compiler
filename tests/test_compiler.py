@@ -81,6 +81,9 @@ class TestCompiler:
             UnitaryPrimitive(UnitaryDefinitions.cnot())]
         compiler = Compiler(system_dimension, unitary_primitives)
 
+        # Ensure determinism by setting the random seed
+        np.random.seed(12345)
+
         target_unitary = UnitarySequence(system_dimension, [
             UnitarySequenceEntry(UnitaryDefinitions.cnot(), [0, 1]),
             UnitarySequenceEntry(UnitaryDefinitions.rx(np.pi), [0])]).product()
