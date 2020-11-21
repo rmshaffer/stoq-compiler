@@ -8,6 +8,8 @@ from stoqcompiler.unitary import (
     Unitary,
     UnitaryPrimitive,
     UnitaryDefinitions,
+    UnitarySequence,
+    UnitarySequenceEntry,
     ParameterizedUnitary,
     ParameterizedUnitaryParameter)
 from stoqcompiler.compiler import Compiler, CompilerAction
@@ -16,69 +18,11 @@ qubit_dimension = 2
 
 
 class TestCompiler:
-    def _test_compile_no_unitary(
-        self,
-        compiler: Compiler
-    ) -> None:
+    def test_compile_no_unitary(self) -> None:
+        compiler = Compiler(qubit_dimension, [])
         target_unitary = None
         with pytest.raises(Exception):
             compiler.compile(target_unitary)
-
-    def _test_compile_identity(
-        self,
-        compiler: Compiler,
-        num_qubits: int = 1
-    ) -> None:
-        compiler.set_unitary_primitives([
-            UnitaryPrimitive(Unitary.identity(qubit_dimension))])
-
-        system_dimension = qubit_dimension ** num_qubits
-        target_unitary = Unitary.identity(system_dimension)
-        result = compiler.compile(target_unitary)
-
-        assert result.compiled_sequence.product().close_to(target_unitary)
-        assert result.compiled_sequence.get_qasm()
-        assert result.compiled_sequence.get_display_output()
-        assert isinstance(result.cost_by_step, list)
-        assert result.total_elapsed_time >= 0.0
-
-    def _test_compile_no_unitary_primitives(
-        self,
-        compiler: Compiler
-    ) -> None:
-        target_unitary = Unitary(qubit_dimension)
-        with pytest.raises(Exception):
-            compiler.compile(target_unitary)
-
-    def _test_compile_cnot(
-        self,
-        compiler: Compiler
-    ) -> None:
-        target_unitary = UnitaryDefinitions.cnot()
-        result = compiler.compile(target_unitary)
-
-        assert result.compiled_sequence.product().close_to(target_unitary)
-        assert result.compiled_sequence.get_qasm()
-        assert result.compiled_sequence.get_display_output()
-        assert isinstance(result.cost_by_step, list)
-        assert result.total_elapsed_time >= 0.0
-
-    def _test_compile_sigmaz(
-        self,
-        compiler: Compiler
-    ) -> None:
-        target_unitary = UnitaryDefinitions.sigmaz()
-        result = compiler.compile(target_unitary)
-
-        assert result.compiled_sequence.product().close_to(target_unitary)
-        assert result.compiled_sequence.get_qasm()
-        assert result.compiled_sequence.get_display_output()
-        assert isinstance(result.cost_by_step, list)
-        assert result.total_elapsed_time >= 0.0
-
-    def test_compile_no_unitary(self) -> None:
-        compiler = Compiler(qubit_dimension)
-        self._test_compile_no_unitary(compiler)
 
     def test_compiler_action_enum(self) -> None:
         assert CompilerAction.is_append(CompilerAction.AppendFirst)
@@ -92,33 +36,62 @@ class TestCompiler:
         assert not CompilerAction.is_remove(CompilerAction.AppendLast)
 
     def test_compile_identity(self) -> None:
-        compiler = Compiler(qubit_dimension)
-        self._test_compile_identity(compiler)
+        unitary_primitives = [
+            UnitaryPrimitive(Unitary.identity(qubit_dimension))]
+        compiler = Compiler(qubit_dimension, unitary_primitives)
+
+        num_qubits = 1
+        system_dimension = qubit_dimension ** num_qubits
+        target_unitary = Unitary.identity(system_dimension)
+        result = compiler.compile(target_unitary)
+
+        assert result.compiled_sequence.product().close_to(target_unitary)
+        assert result.compiled_sequence.get_qasm()
+        assert result.compiled_sequence.get_display_output()
+        assert isinstance(result.cost_by_step, list)
+        assert result.total_elapsed_time >= 0.0
 
     def test_compile_no_unitary_primitives(self) -> None:
-        compiler = Compiler(qubit_dimension)
-        self._test_compile_no_unitary_primitives(compiler)
+        target_unitary = Unitary(qubit_dimension)
+        with pytest.raises(Exception):
+            compiler = Compiler(qubit_dimension)
+            compiler.compile(target_unitary)
 
     def test_compile_sigmaz(self) -> None:
         system_dimension = qubit_dimension
-        compiler = Compiler(system_dimension)
         unitary_primitives = [
             UnitaryPrimitive(UnitaryDefinitions.rx(np.pi / 2)),
             UnitaryPrimitive(UnitaryDefinitions.ry(np.pi / 2))]
-        compiler.set_unitary_primitives(unitary_primitives)
-        self._test_compile_sigmaz(compiler)
+        compiler = Compiler(system_dimension, unitary_primitives)
 
-    @pytest.mark.skip(reason="not reliable")
-    def test_compile_cnot(self) -> None:
+        target_unitary = UnitaryDefinitions.sigmaz()
+        result = compiler.compile(target_unitary)
+
+        assert result.compiled_sequence.product().close_to(target_unitary)
+        assert result.compiled_sequence.get_qasm()
+        assert result.compiled_sequence.get_display_output()
+        assert isinstance(result.cost_by_step, list)
+        assert result.total_elapsed_time >= 0.0
+
+    def test_compile_two_qubits(self) -> None:
         num_qubits = 2
         system_dimension = qubit_dimension ** num_qubits
-        compiler = Compiler(system_dimension)
         unitary_primitives = [
             UnitaryPrimitive(UnitaryDefinitions.rx(np.pi / 2)),
             UnitaryPrimitive(UnitaryDefinitions.ry(np.pi / 2)),
-            UnitaryPrimitive(UnitaryDefinitions.xx())]
-        compiler.set_unitary_primitives(unitary_primitives)
-        self._test_compile_cnot(compiler)
+            UnitaryPrimitive(UnitaryDefinitions.cnot())]
+        compiler = Compiler(system_dimension, unitary_primitives)
+
+        target_unitary = UnitarySequence(system_dimension, [
+            UnitarySequenceEntry(UnitaryDefinitions.cnot(), [0, 1]),
+            UnitarySequenceEntry(UnitaryDefinitions.rx(np.pi), [0])]).product()
+        result = compiler.compile(target_unitary)
+
+        assert result.compiled_sequence.product().close_to(target_unitary)
+        assert result.compiled_sequence.get_qasm()
+        assert result.compiled_sequence.get_display_output()
+        assert isinstance(result.cost_by_step, list)
+        assert result.total_elapsed_time >= 0.0
 
     def test_compile_sigmaz_approximate(self) -> None:
         threshold = 0.95
@@ -150,8 +123,7 @@ class TestCompiler:
         unitary_primitives = [UnitaryPrimitive(rotation)]
 
         system_dimension = qubit_dimension
-        compiler = Compiler(system_dimension)
-        compiler.set_unitary_primitives(unitary_primitives)
+        compiler = Compiler(system_dimension, unitary_primitives)
         target_unitary = UnitaryDefinitions.sigmaz()
         result = compiler.compile(target_unitary, threshold)
 

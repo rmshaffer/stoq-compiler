@@ -235,8 +235,7 @@ class Hamiltonian:
         unitary_primitives = self._get_unitary_primitives(
             max_t_step, allow_simultaneous_terms)
 
-        compiler = Compiler(self.get_dimension())
-        compiler.set_unitary_primitives(unitary_primitives)
+        compiler = Compiler(self.get_dimension(), unitary_primitives)
         result = compiler.compile(
             target_unitary, threshold, max_step_count=10000)
 

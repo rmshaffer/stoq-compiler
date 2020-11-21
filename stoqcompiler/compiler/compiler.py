@@ -24,6 +24,15 @@ class Compiler:
     :param dimension: The dimension of the state space. For an n-qubit
         system, dimension should be set to 2**n.
     :type dimension: int
+    :param unitary_primitives: The unitary primitives to be used for
+        the compilation.
+    :type unitary_primitives: List[UnitaryPrimitive]
+    :param unitary_primitive_probabilities: The probability for STOQ to
+        choose each of the primitives specified in unitary_primitives when
+        proposing new gates at each step of the compilation process,
+        defaults to None. If not specified, each unitary primitive is
+        chosen with uniform probability.
+    :type unitary_primitive_probabilities: Optional[List[float]], optional
     :param append_probability: Probability of appending a new gate at each
         step in the compilation, defaults to 0.5.
     :type append_probability: float, optional
@@ -35,6 +44,8 @@ class Compiler:
     def __init__(
         self,
         dimension: int,
+        unitary_primitives: List[UnitaryPrimitive],
+        unitary_primitive_probabilities: Optional[List[float]] = None,
         append_probability: float = 0.5,
         annealing_rate: float = 0.1
     ):
@@ -42,45 +53,23 @@ class Compiler:
         Creates a Compiler object.
         '''
         assert dimension > 0
-        self.dimension = dimension
-        self.unitary_primitives = []
-        self.unitary_primitive_probabilities = None
-        self.max_beta = (2**dimension) ** 2
-        self.beta = 0.0
-        self.annealing_rate = annealing_rate
-        self.append_probability = append_probability
-
-    def set_unitary_primitives(
-        self,
-        unitary_primitives: List[UnitaryPrimitive],
-        unitary_primitive_probabilities: Optional[List[float]] = None
-    ) -> None:
-        '''
-        Sets the unitary primitives and associated probabilities for
-        use in the STOQ compilation process.
-
-        :param unitary_primitives: The unitary primitives to be used for
-            the compilation.
-        :type unitary_primitives: List[UnitaryPrimitive]
-        :param unitary_primitive_probabilities: The probability for STOQ to
-            choose each of the primitives specified in unitary_primitives when
-            proposing new gates at each step of the compilation process,
-            defaults to None. If not specified, each unitary primitive is
-            chosen with uniform probability.
-        :type unitary_primitive_probabilities: Optional[List[float]], optional
-        '''
         assert (isinstance(unitary_primitives, list)
                 or isinstance(unitary_primitives, np.ndarray))
         assert np.all([
             isinstance(primitive, UnitaryPrimitive)
             for primitive in unitary_primitives])
         assert np.all([
-            primitive.get_unitary().get_dimension() <= self.dimension
+            primitive.get_unitary().get_dimension() <= dimension
             for primitive in unitary_primitives])
 
+        self.dimension = dimension
         self.unitary_primitives = copy.deepcopy(unitary_primitives)
         self.unitary_primitive_probabilities = copy.deepcopy(
             unitary_primitive_probabilities)
+        self.max_beta = (2**dimension) ** 2
+        self.beta = 0.0
+        self.annealing_rate = annealing_rate
+        self.append_probability = append_probability
 
     def compile(
         self,
@@ -148,6 +137,7 @@ class Compiler:
             this number of steps regardless of whether the threshold has
             been reached.
         :type max_step_count: int, optional
+        :return: The CompilerResult object containing the output of
             the compilation.
         :rtype: CompilerResult
         '''
