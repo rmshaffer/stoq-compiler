@@ -73,9 +73,10 @@ class Verification:
 
         # Use Compiler to compile a new sequence implementing the inverse
         compiler = Compiler(
-            dimension, stoq_append_probability)
-        compiler.set_unitary_primitives(
-            unitary_primitives, unitary_primitive_probabilities)
+            dimension,
+            unitary_primitives,
+            unitary_primitive_probabilities,
+            append_probability=stoq_append_probability)
         result = compiler.compile(
             target_unitary, threshold, max_step_count=10000)
 
@@ -150,7 +151,10 @@ class Verification:
         target_unitary = random_sequence.product().inverse()
 
         # Use Compiler to compile a new sequence implementing the inverse
-        compiler = Compiler(dimension, stoq_append_probability)
+        compiler = Compiler(
+            dimension,
+            list(unitary_primitive_counts.keys()),
+            append_probability=stoq_append_probability)
         result = compiler.compile_layered(
             target_unitary, unitary_primitive_counts,
             threshold, max_step_count)
