@@ -76,6 +76,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+.nbconvert_output
 
 # IPython
 profile_default/
