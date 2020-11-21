@@ -78,7 +78,6 @@ class TestCompiler:
         system_dimension = qubit_dimension ** num_qubits
         unitary_primitives = [
             UnitaryPrimitive(UnitaryDefinitions.rx(np.pi / 2)),
-            UnitaryPrimitive(UnitaryDefinitions.ry(np.pi / 2)),
             UnitaryPrimitive(UnitaryDefinitions.cnot())]
         compiler = Compiler(system_dimension, unitary_primitives)
 
