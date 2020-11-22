@@ -51,12 +51,6 @@ class TestCompiler:
         assert isinstance(result.cost_by_step, list)
         assert result.total_elapsed_time >= 0.0
 
-    def test_compile_no_unitary_primitives(self) -> None:
-        target_unitary = Unitary(qubit_dimension)
-        with pytest.raises(Exception):
-            compiler = Compiler(qubit_dimension)
-            compiler.compile(target_unitary)
-
     def test_compile_sigmaz(self) -> None:
         system_dimension = qubit_dimension
         unitary_primitives = [
@@ -82,7 +76,7 @@ class TestCompiler:
         compiler = Compiler(system_dimension, unitary_primitives)
 
         # Ensure determinism by setting the random seed
-        np.random.seed(12345)
+        np.random.seed(123456)
 
         target_unitary = UnitarySequence(system_dimension, [
             UnitarySequenceEntry(UnitaryDefinitions.cnot(), [0, 1]),
