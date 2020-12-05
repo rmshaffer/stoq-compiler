@@ -257,9 +257,9 @@ class Compiler:
         compiled_sequence = UnitarySequence(self.dimension)
         cost_by_step = []
 
-        while not (
-                compiled_sequence.product().close_to(target_unitary, threshold)
-                and len(cost_by_step) < max_step_count):
+        while (not compiled_sequence.product().close_to(
+                target_unitary, threshold)
+               and len(cost_by_step) < max_step_count):
             self.beta = min(self.beta + self.annealing_rate, self.max_beta)
             product_before_change = compiled_sequence.product()
             self._make_random_change_layered(
