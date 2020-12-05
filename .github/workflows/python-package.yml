@@ -28,7 +28,13 @@ jobs:
         flake8 . --count --max-complexity=10 --show-source --statistics --verbose
     - name: Test with pytest
       run: |
-        pytest
+        pytest --cov --cov-report=xml
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+        fail_ci_if_error: true
     - name: Validate notebooks with nbconvert
       run: |
         jupyter nbconvert --execute --to html examples/*.ipynb --output-dir examples/.nbconvert_output
