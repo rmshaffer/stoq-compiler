@@ -3,16 +3,19 @@
 
 # stoqcompiler: Toolset for stochastic approximate quantum compilation
 
-TODO: Brief introduction
+The `stoqcompiler` package provides a toolset for stochastic approximate quantum compilation, including an implementation of the randomized analog verification (RAV) protocol as introduced in [arXiv:2003.04500](https://arxiv.org/abs/2003.04500).
 
 ## Installation
 
-The package distribution is hosted on PyPI and can be installed via `pip`:
+The `stoqcompiler` package and its requirements can be installed via `pip` by cloning the repository locally:
 
 ```
-pip install stoqcompiler
+git clone https://github.com/rmshaffer/stoq-compiler
+cd stoq-compiler
+pip install -r requirements.txt
+pip install -e .
 ```
 
 ## Usage
 
-TODO: Simple usage examples
+For examples of using `stoqcompiler`, see the [example notebooks](./examples).
