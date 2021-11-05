@@ -22,6 +22,20 @@ class TestUnitary:
         assert unitary.get_dimension() == dimension
         assert unitary.close_to(np.identity(dimension))
 
+    def test_close_to(self) -> None:
+        dimension = 2
+        random_unitary = Unitary.random(dimension)
+        t = UnitaryDefinitions.t()
+
+        assert random_unitary.close_to(random_unitary)
+        assert random_unitary.close_to(random_unitary, None)
+        assert random_unitary.close_to(random_unitary, 0.999)
+
+        assert not random_unitary.close_to(t)
+        assert not random_unitary.close_to(t, None)
+        assert not random_unitary.close_to(t, 0.999)
+        assert random_unitary.close_to(t, 0.0)
+
     def test_non_square_matrix(self) -> None:
         dimension = 2
         with pytest.raises(Exception):
