@@ -296,7 +296,7 @@ class Unitary:
         :rtype: bool
         '''
         distance = self.distance_from(u)
-        if threshold:
+        if threshold is not None:
             max_distance = 1.0 - threshold
             return distance <= max_distance
 
