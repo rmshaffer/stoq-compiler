@@ -4,7 +4,7 @@
 
 # stoqcompiler: Toolset for stochastic approximate quantum compilation
 
-The `stoqcompiler` package provides a toolset for stochastic approximate quantum compilation as introduced in [arXiv:2101.04474](https://arxiv.org/abs/2101.04474).
+The `stoqcompiler` package provides a toolset for stochastic approximate quantum compilation as introduced in [arXiv:2205.13074](https://arxiv.org/abs/2205.13074).
 
 ## Installation
 
@@ -31,4 +31,4 @@ For examples of using `stoqcompiler`, see the [example notebooks](./examples) an
 
 If you use or refer to this project in any publication, please cite the corresponding paper:
 
-> Ryan Shaffer. _Stochastic search for approximate compilation of unitaries._ [arXiv:2101.04474](https://arxiv.org/abs/2101.04474) (2021).
+> Ryan Shaffer, Hang Ren, Emiliia Dyrenkova, Christopher G. Yale, Daniel S. Lobser, Ashlyn D. Burch, Matthew N. H. Chow, Melissa C. Revelle, Susan M. Clark, Hartmut Häffner. _Efficient verification of continuously-parameterized quantum gates._ [arXiv:2205.13074](https://arxiv.org/abs/2205.13074) (2022).
