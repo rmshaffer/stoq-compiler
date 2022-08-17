@@ -45,7 +45,7 @@ class TestVerification:
         rav_result = Verification.generate_rav_sequence(
             system_dimension, unitary_primitives, sequence_length, threshold)
         assert isinstance(rav_result, CompilerResult)
-        
+
         assert rav_result.compiled_sequence.get_length() == sequence_length
         assert rav_result.compiled_sequence.get_qasm()
         assert rav_result.compiled_sequence.get_jaqal()
