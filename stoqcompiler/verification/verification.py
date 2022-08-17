@@ -19,7 +19,8 @@ class Verification:
         sequence_length: int,
         threshold: float,
         stoq_append_probability: float = 0.5,
-        unitary_primitive_probabilities: Optional[List[float]] = None
+        unitary_primitive_probabilities: Optional[List[float]] = None,
+        max_step_count: int = 10000
     ) -> CompilerResult:
         '''
         Implements randomized analog verification (RAV) as per
@@ -47,6 +48,12 @@ class Verification:
             defaults to None. If not specified, each unitary primitive is
             chosen with uniform probability.
         :type unitary_primitive_probabilities: Optional[List[float]], optional
+        :param max_step_count: Maximum number of steps to perform while
+            attempting to perform the approximate compilation,
+            defaults to 10000. Compilation of the inversion sequence will
+            terminate after this number of steps regardless of whether the
+            threshold has been reached.
+        :type max_step_count: int, optional
         :return: The result of the compilation, including the RAV sequence.
         :rtype: CompilerResult
         '''
@@ -68,6 +75,10 @@ class Verification:
                 dimension, unitary_primitives, unitary_primitive_probabilities)
             random_sequence.append_last(new_sequence_entry)
 
+        # Skip inverse compilation if threshold or max_step_count is zero
+        if threshold == 0.0 or max_step_count == 0:
+            return CompilerResult(random_sequence, [], 0.0)
+
         # Calculate the product of this sequence and invert it
         target_unitary = random_sequence.product().inverse()
 
@@ -78,7 +89,7 @@ class Verification:
             unitary_primitive_probabilities,
             append_probability=stoq_append_probability)
         result = compiler.compile(
-            target_unitary, threshold, max_step_count=10000)
+            target_unitary, threshold, max_step_count)
 
         # Return the CompilerResult with the combined sequence
         result.compiled_sequence = UnitarySequence.combine(
@@ -147,6 +158,10 @@ class Verification:
             for sequence_entry in layer:
                 random_sequence.append_last(sequence_entry)
 
+        # Skip inverse compilation if threshold or max_step_count is zero
+        if threshold == 0.0 or max_step_count == 0:
+            return CompilerResult(random_sequence, [], 0.0)
+
         # Calculate the product of this sequence and invert it
         target_unitary = random_sequence.product().inverse()
 
@@ -163,3 +178,29 @@ class Verification:
         result.compiled_sequence = UnitarySequence.combine(
             random_sequence, result.compiled_sequence)
         return result
+
+    @staticmethod
+    def generate_xeb_sequence(
+        dimension: int,
+        unitary_primitive_counts: Dict[UnitaryPrimitive, int],
+        layer_count: int
+    ) -> CompilerResult:
+        '''
+        Implements cross-entropy benchmarking (XEB) sequence generation.
+
+        :param dimension: [description]
+        :type dimension: int
+        :param unitary_primitive_counts: Specifies the fixed set of unitary
+            primitives to be contained in each layer of the compilation.
+            Each key is the unitary primitive to be included, and each
+            value is the count of that unitary primitive per layer.
+        :type unitary_primitive_counts: Dict[UnitaryPrimitive, int]
+        :param layer_count: The number of layers to create in the
+            randomly-generated sequence.
+        :type layer_count: int
+        :return: The result of the compilation, including the XEB sequence.
+        :rtype: CompilerResult
+        '''
+        return Verification.generate_layered_rav_sequence(
+            dimension, unitary_primitive_counts, layer_count,
+            threshold=0.0, max_step_count=0)
