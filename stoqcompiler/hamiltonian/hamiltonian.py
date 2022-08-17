@@ -166,7 +166,6 @@ class Hamiltonian:
         :type time: float
         :param num_repetitions: The number of QDRIFT repetitions to use.
         :type num_repetitions: int
-        :return: [description]
         :return: A sequence of unitaries implementing the QDRIFT
             decomposition of the time evolution of the system.
         :rtype: UnitarySequence
@@ -197,7 +196,7 @@ class Hamiltonian:
     ) -> CompilerResult:
         '''
         Returns a sequence of unitaries using a STOQ compilation
-        of the time-evolution under this Hamiltonian, The sequence
+        of the time-evolution under this Hamiltonian. The sequence
         approximately implements the ideal time evolution of the system.
 
         :param time: The total time to evolve the system.
