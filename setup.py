@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="stoqcompiler",
-    version="0.1.0",
+    version="0.2.0",
     author="Ryan Shaffer",
     author_email="ryan@ryanshaffer.net",
     description="Toolset for stochastic approximate quantum compilation.",
