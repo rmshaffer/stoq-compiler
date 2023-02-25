@@ -32,3 +32,5 @@ For examples of using `stoqcompiler`, see the [example notebooks](./examples) an
 If you use or refer to this project in any publication, please cite the corresponding paper:
 
 > Ryan Shaffer, Hang Ren, Emiliia Dyrenkova, Christopher G. Yale, Daniel S. Lobser, Ashlyn D. Burch, Matthew N. H. Chow, Melissa C. Revelle, Susan M. Clark, Hartmut Häffner. _Efficient verification of continuously-parameterized quantum gates._ [arXiv:2205.13074](https://arxiv.org/abs/2205.13074) (2022).
+
+Please note that this repository [contains the data and code]((./paper)) used to generate each of the figures in the above-mentioned paper.

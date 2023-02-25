@@ -1,0 +1,21 @@
+
+from qscout.v1.std usepulses *
+register q[2]
+prepare_all
+// JAQAL generated from UnitarySequence.get_jaqal()
+Rz q[0] -0.1249749
+Rz q[1] -0.0301859
+R q[1] -1.8183727 0.0040792
+R q[0] 0.150401 0.0005804
+R q[0] 1.2802473 -0.1941257
+Rz q[1] -0.0873242
+MS q[0] q[1] 0.5758072 -0.1267593
+Rz q[1] 0.1857306
+R q[0] 0.8096074 0.0579853
+R q[0] -2.604672 -0.1228683
+Rz q[0] -0.2355234
+R q[0] -0.7330805 0.1088883
+Rz q[0] 0.2174334
+MS q[1] q[0] 1.6993963 0.1245501
+measure_all
+            
